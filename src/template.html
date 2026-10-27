@@ -1,0 +1,1358 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OHSTA — Dress Code Violation Drop</title>
+<meta name="description" content="OHSTA.Studio limited drop: suits, ripped and reworn. Dropping Friday 23 Oct, 6 PM. 300 pieces, no restock.">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="OHSTA — Dress Code Violation Drop">
+<meta property="og:description" content="Suits, ripped and reworn. 300 pieces, no restock.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230013ff'/%3E%3Ctext x='32' y='41' font-family='Arial Black,Arial' font-weight='900' font-size='24' text-anchor='middle' fill='white'%3EOH%3C/text%3E%3C/svg%3E">
+<style>
+/* Layout: Figma frame 07 (1920×1080), responsive.
+   Every block is placed in % of the screen (anchored to its edge or centre), and sized by one scale
+   --s = the smaller of (1% of width ÷ 19.2) and (1% of height ÷ 10.8), so at 1920×1080 it equals Figma 1:1. Inside a block
+   everything is % of the block or em of its own type size, so each block scales as a unit.
+   Phones (portrait) get their own arrangement of the same blocks.
+   Fonts: PP Monument Extended Black + PP Neue Montreal Book/Bold, embedded as glyph subsets. */
+@font-face{font-family:"OH Display";src:url(__F_MON__) format("woff2");font-weight:900;font-display:block}
+@font-face{font-family:"OH Text";src:url(__F_BOOK__) format("woff2");font-weight:400;font-display:block}
+@font-face{font-family:"OH Text";src:url(__F_BOLD__) format("woff2");font-weight:800;font-display:block}
+:root{
+  --black:#000000;
+  --white:#ffffff;
+  --blue:#0013ff;
+  --chip:rgba(0,0,0,.5);
+  --display:"OH Display","Arial Black",sans-serif;
+  --text:"OH Text","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{margin:0;background:var(--black);color:var(--white);overflow:hidden;font-family:var(--text)}
+#view{position:fixed;inset:0;overflow:hidden;background:var(--black);touch-action:none;container-type:size}
+
+/* ---- photo scene: 16:9 picture covering its box, with a focus point ---- */
+#sceneBox{position:absolute;inset:0;container-type:size;overflow:hidden;--fx:.5;--fy:.5}
+#stage{position:absolute;--sw:max(100cqw,177.7778cqh);width:var(--sw);height:calc(var(--sw) * .5625);
+  left:calc((100cqw - var(--sw)) * var(--fx));top:calc((100cqh - var(--sw) * .5625) * var(--fy))}
+#scene{position:absolute;inset:0;transform-origin:60% 40%}
+#scene canvas,#scene img{position:absolute;display:block;top:0;height:100%}
+#gl,#paint,#mist{left:0;width:100%}
+#guy{left:49.6354%;width:50.3646%;pointer-events:none}
+#vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;background:#000}
+.video-mode #vid{display:block}
+.video-mode #gl,.video-mode #guy{display:none}
+#marks{left:0;width:100%}
+.video-mode #paint{-webkit-mask:url("__WALLMASK__") 0 0/100% 100% no-repeat;mask:url("__WALLMASK__") 0 0/100% 100% no-repeat}
+#tags{position:absolute;inset:0;pointer-events:none}
+.tag{position:absolute;pointer-events:auto;cursor:pointer;border:0;margin:0;padding:.38em .62em .34em;background:#000;color:var(--white);
+  font:400 1em/1 var(--text);letter-spacing:.01em;white-space:nowrap;rotate:-2.5deg;opacity:0}
+.tag .n{font-weight:800;margin-right:.55em;color:#6f7bff}
+.tag:hover{background:var(--blue)}
+.tag:hover .n{color:var(--white)}
+.tag:focus-visible{outline:.12em solid var(--white);outline-offset:.15em}
+#sfade{position:absolute;inset:0 0 -4px 0;display:none;pointer-events:none}   /* overhangs a hair so no photo row peeks out under the push-in */
+#fade{position:absolute;inset:0;display:none;background:linear-gradient(to bottom,rgba(0,0,0,.4) 0%,rgba(0,0,0,0) 20%,rgba(0,0,0,0) 36%,rgba(0,0,0,.55) 56%,rgba(0,0,0,.92) 84%)}
+
+/* ---- type layer ---- */
+/* no container on #ui itself, so the ring (screen) still blends with the photo */
+#ui{position:absolute;inset:0;pointer-events:none;--s:min(calc(100cqw / 1920), calc(100cqh / 1080))}
+.blk{position:absolute;margin:0;color:var(--white);white-space:nowrap;font-size:calc(var(--fs) * var(--s))}
+/* anchors: L/C/R horizontally, T/M/B vertically; positions are Figma coordinates times the scale */
+.aL{left:calc(var(--x) * var(--s))}
+.aC{left:calc(50% + (var(--x) - 960) * var(--s))}
+.aR{right:calc((1920 - var(--x) - var(--w)) * var(--s))}
+.aT{top:calc(var(--y) * var(--s))}
+.aM{top:calc(50% + (var(--y) - 540) * var(--s))}
+.aB{top:calc(100% - (1080 - var(--y)) * var(--s))}
+.blk img,.blk .in{position:absolute;display:block;max-width:none;margin:0}
+.fit{display:inline-block;transform-origin:0 0;white-space:nowrap}
+
+/* logo — "OH" set in one line on a small spray splotch drawn by the same generator as the button,
+   so mark and button read as one system; letters sit on the top line of the grid with the tagline and date */
+#logo{--x:50;--y:46;--fs:40;width:auto;height:auto;left:calc(50 * var(--s) - var(--ink-l, 0em));top:calc(var(--logo-top) * var(--s) - var(--ink-t, 0em));--logo-top:50}
+#logoText{position:relative;margin:0;font:900 1em/.8 var(--display);letter-spacing:-.02em;white-space:nowrap;z-index:1}
+#logoSpray{position:absolute;left:-.62em;top:-.78em;width:3.4em;height:2.35em;pointer-events:none}
+
+/* headline — box 1819×333; the blue O, button, ring and drip live inside it in % */
+#head{--x:36;--y:475;--fs:260}
+.hl{position:relative;margin:0;font:900 1em/1.28 var(--display);letter-spacing:-.05em;text-transform:uppercase}
+.hl .w1,.hl .w2{display:inline-block}
+/* stencil: an outline copy of the headline sits under the real one; the real one is painted by the can's pass,
+   then the outline fades so the final weight is exactly the Figma weight */
+.hl.stencil{position:absolute;left:0;top:0;color:transparent;-webkit-text-stroke:.0042em rgba(255,255,255,.62);pointer-events:none;transition:opacity .7s ease}
+.hl.stencil .o{-webkit-text-stroke-color:transparent}
+.hl.stencil.done{opacity:0}
+/* a can pass: everything left of --sx is painted, with a soft speckled leading edge */
+@property --sx{syntax:'<percentage>';inherits:false;initial-value:130%}
+@property --sr{syntax:'<percentage>';inherits:false;initial-value:150%}
+.sprayed{-webkit-mask-image:linear-gradient(90deg,#000 calc(var(--sx) - 9%),rgba(0,0,0,.5) calc(var(--sx) - 3%),transparent var(--sx));
+  mask-image:linear-gradient(90deg,#000 calc(var(--sx) - 9%),rgba(0,0,0,.5) calc(var(--sx) - 3%),transparent var(--sx))}
+#tdrips{position:absolute;left:0;top:0;pointer-events:none}
+/* the button, glow, ring and drip hang off the centre of the blue O (JS places #blob on it), sized in em of the headline */
+#blob{position:absolute;left:0;top:0;width:0;height:0}
+.hl .ch{display:inline-block;will-change:transform,opacity}
+.hl .o{color:var(--blue)}
+/* the button is a spray-paint splotch drawn on a canvas (shape, grain, overspray and live drips), centred on the O */
+#splotch{position:absolute;left:-.8em;top:-.62em;width:1.6em;height:1.95em;pointer-events:none;transform-origin:50% 31.795%}
+/* splotches grow out from the nozzle point: a radial mask with a soft rim */
+#splotch,#logoSpray,#burst{-webkit-mask-image:radial-gradient(circle at var(--sc, 50% 50%),#000 calc(var(--sr) - 12%),rgba(0,0,0,.4) calc(var(--sr) - 4%),transparent var(--sr));
+  mask-image:radial-gradient(circle at var(--sc, 50% 50%),#000 calc(var(--sr) - 12%),rgba(0,0,0,.4) calc(var(--sr) - 4%),transparent var(--sr))}
+#splotch{--sc:50% 31.795%}
+#cd{left:-5em;top:.85em;width:10em;text-align:center;font:400 .062em/1 var(--text);letter-spacing:.04em;font-variant-numeric:tabular-nums;color:var(--white);opacity:.9;pointer-events:none;white-space:nowrap}
+.hl .o{color:transparent}
+#reserve{left:-1.9465em;top:-.98em;font:800 .13em/1.28 var(--text);letter-spacing:-.01em;transform-origin:50% 50%}
+#ring{left:-.71923em;top:-.20385em;width:1.53077em;height:.53846em;mix-blend-mode:screen;transform-origin:46.98% 37.86%;
+  /* sprayed on in one circular pass: --ra is how far round the can has travelled; the leading edge is soft */
+  -webkit-mask-image:conic-gradient(from 250deg at 46.98% 37.86%,#000 calc(var(--ra) - 30deg),rgba(0,0,0,.35) calc(var(--ra) - 8deg),transparent var(--ra));
+  mask-image:conic-gradient(from 250deg at 46.98% 37.86%,#000 calc(var(--ra) - 30deg),rgba(0,0,0,.35) calc(var(--ra) - 8deg),transparent var(--ra))}
+@property --ra{syntax:'<angle>';inherits:false;initial-value:400deg}
+#hit{position:absolute;left:-.52692em;top:-.38846em;width:1.05385em;height:.77692em;border-radius:50%;border:0;padding:0;background:transparent;cursor:pointer;pointer-events:auto;z-index:3}
+#hit:focus-visible{outline:.012em solid var(--white);outline-offset:.025em}
+.blobpart{will-change:transform}
+.drop{position:absolute;border-radius:50%;background:var(--blue);pointer-events:none}
+.speck{position:absolute;border-radius:50%;background:var(--blue);pointer-events:none}
+/* the "pshh": a blue cloud that puffs out and settles while the stain builds up underneath */
+.haze{position:absolute;border-radius:50%;pointer-events:none;background:radial-gradient(closest-side,rgba(10,35,255,.55),rgba(10,35,255,.22) 55%,rgba(10,35,255,0))}
+.mistb{position:absolute;border-radius:50%;background:var(--blue);pointer-events:none}
+.mistdot{position:absolute;border-radius:50%;background:var(--white);pointer-events:none;filter:blur(.002em)}
+
+/* copy */
+#tagline{--x:926;--y:49;--fs:28;width:11.5357em;font-weight:400;line-height:.9;letter-spacing:-.03em;white-space:normal}
+#day{--x:1817;--y:46;--w:60;--fs:52.022;width:1.1534em;line-height:.9;letter-spacing:-.03em;text-align:center}
+#day span{display:block;white-space:pre}
+#date{--x:926;--y:769;--fs:48;width:9.9375em;line-height:.9;letter-spacing:-.03em;white-space:normal}
+.foot{--fs:18;line-height:1.28}
+.foot .l2{display:block;margin-top:-.2244em;margin-left:.0556em}
+#fScroll{--x:50;--y:992}
+#fDress{--x:357;--y:993}
+#fNo{--x:926;--y:993}
+#fDrop{--x:1704;--y:989;--w:166;width:9.2222em;white-space:normal}
+.jl,.ll{display:block;white-space:nowrap;transform-origin:0 0}
+.jl{text-align:justify;text-align-last:justify}
+.ll{text-align:left}
+.jl.squeezed{text-align:left;text-align-last:left}
+.mline{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.mline>span{display:block}
+
+#replay{position:absolute;left:calc(50% + 520 * var(--s));top:calc(100% - 66 * var(--s));translate:-50% 0;z-index:6;pointer-events:auto;
+  font:500 calc(12 * var(--s))/1 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--white);background:var(--chip);
+  border:.08em solid rgba(255,255,255,.22);border-radius:99em;padding:.7em 1.1em;cursor:pointer;backdrop-filter:blur(.5em);opacity:.75;white-space:nowrap}
+#replay:hover{opacity:1}
+#replay:focus-visible{outline:.15em solid var(--white);outline-offset:.15em}
+#hint{display:none;position:fixed;left:0;top:0;padding:.5em .85em;border-radius:99em;background:var(--chip);backdrop-filter:blur(.5em);
+  font:500 .75rem/1 var(--text);color:var(--white);pointer-events:none;opacity:0;transition:opacity .3s;z-index:5;white-space:nowrap}
+
+/* ---- phones and portrait tablets: the portrait photo from Figma frame "mob" (wall, OHSTA tag and the guy up top,
+   pavement below for the type); editorial grid on a 390-wide column scaled to the screen width:
+   left edge 12, second column 201, right edge 378, top line 22. Scale = 1% of width ÷ 3.9 (very squat screens are
+   capped by height). Headline, date and footer are stacked from the bottom; the photo is placed so the guy's feet sit
+   just above the headline (or higher), but never so high that the tag slides under the top bar. ---- */
+@media (max-aspect-ratio: 4/5){
+  #view{--s:min(calc(100cqw / 390), calc(100cqh / 600))}
+  #sceneBox{container-type:normal}
+  /* photo is 1000×1849: width = screen, height = 184.9% of it; tag top at 20% of its height, feet at 48% */
+  #stage{width:100%;height:calc(100cqw * 1.849);left:0;
+    top:max(calc(86 * var(--s) - 36.98cqw), min(0px, calc(100cqh - 343 * var(--s) - 88.75cqw)))}
+  #scene #guy{left:59%;top:22.4446%;width:34.5%;height:26.0681%}
+  #sfade{display:block;background:linear-gradient(to bottom,rgba(0,0,0,.25) 0%,rgba(0,0,0,0) 14%,rgba(0,0,0,0) 47%,rgba(0,0,0,.6) 56%,rgba(0,0,0,.92) 70%,#000 82%)}
+  #ui{--s:min(calc(100cqw / 390), calc(100cqh / 600))}
+  .hl{line-height:.86}
+  .hl .w1,.hl .w2{display:block}
+  .hl .w2 .ch:first-child{margin-left:0}   /* M starts its own line: drop the single-line kerning nudge */
+  /* logo letters sit on the left edge and the top line, like everything else on the grid */
+  #logo{--fs:20;left:calc(50% + (12 - 195) * var(--s) - var(--ink-l, 0em));top:calc(22 * var(--s) - var(--ink-t, 0em))}
+  #tagline{--fs:12.5;left:calc(50% + (201 - 195) * var(--s));top:calc(21 * var(--s))}
+  #day{--fs:22;right:calc(50% - (382.6 - 195) * var(--s));top:calc(20.2 * var(--s))}
+  /* sized so MING's ink spans exactly 12–378; offset by the I/M side bearing */
+  #head{--fs:104.19;left:calc(50% + (5.8 - 195) * var(--s));top:calc(100% - 337 * var(--s))}
+  #date{--fs:24;left:calc(50% + (12 - 195) * var(--s));top:calc(100% - 146 * var(--s))}
+  .foot{--fs:12.5}
+  #fDress{left:calc(50% + (12 - 195) * var(--s));top:calc(100% - 90 * var(--s))}
+  #fNo{left:calc(50% + (201 - 195) * var(--s));top:calc(100% - 90 * var(--s))}
+  #fScroll{left:calc(50% + (12 - 195) * var(--s));top:calc(100% - 48 * var(--s))}
+  #fDrop{left:calc(50% + (201 - 195) * var(--s));right:auto;top:calc(100% - 50 * var(--s))}
+  #replay{left:auto;right:calc(50% - (378 - 195) * var(--s));translate:none;top:calc(100% - 142 * var(--s))}
+}
+/* ---- preloader: a CCTV feed at night; two eyes check the street, then the can floods the screen ---- */
+#pre{position:fixed;inset:0;z-index:30;background:#030305;color:#e9ecff;overflow:hidden;font-family:var(--text);cursor:pointer}
+#pre.gone{display:none}
+#preNoise{position:absolute;inset:0;width:100%;height:100%;opacity:.13;image-rendering:pixelated}
+#pre::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px);pointer-events:none}
+.hud{position:absolute;font:400 max(11px,1.05vmin)/1.3 var(--text);letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.hud.tl{left:3.2vmin;top:3vmin}.hud.tr{right:3.2vmin;top:3vmin;font-variant-numeric:tabular-nums}
+.hud.bl{left:3.2vmin;bottom:3vmin}.hud.br{right:3.2vmin;bottom:3vmin}
+.hud .rec{color:#ff3030;animation:rec 1s steps(2) infinite}
+@keyframes rec{50%{opacity:0}}
+.corner{position:absolute;width:5vmin;height:5vmin;border:1px solid rgba(233,236,255,.5)}
+.corner.a{left:2vmin;top:2vmin;border-right:0;border-bottom:0}.corner.b{right:2vmin;top:2vmin;border-left:0;border-bottom:0}
+.corner.c{left:2vmin;bottom:2vmin;border-right:0;border-top:0}.corner.d{right:2vmin;bottom:2vmin;border-left:0;border-top:0}
+#eyes{position:absolute;left:50%;top:46%;width:min(46vw,60vmin);translate:-50% -50%;overflow:visible}
+#eyes .lid{transform-box:fill-box;transform-origin:50% 50%}
+#preCount{position:absolute;left:3.2vmin;bottom:2.4vmin;margin:0;font:900 min(22vw,24vmin)/.78 var(--display);letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:#e9ecff}
+#preCount small{font:400 max(11px,1.05vmin)/1 var(--text);letter-spacing:.08em;text-transform:uppercase;margin-left:.6em;vertical-align:top;opacity:.7}
+#flash{position:fixed;inset:0;z-index:40;background:#fff;opacity:0;pointer-events:none}
+/* fine print grain on the photo / film only (type and button stay clean): one pre-rendered tile at device resolution,
+   soft-light so it lives in the midtones, nudged to a new spot ~11 times a second like a film gate — no full-screen flicker */
+#grain{position:absolute;inset:-16px;pointer-events:none;opacity:.8;mix-blend-mode:soft-light;background-repeat:repeat;
+  animation:grain .8s steps(1) infinite}
+@keyframes grain{0%{transform:translate(0,0)}11%{transform:translate(-7px,4px)}22%{transform:translate(5px,-9px)}33%{transform:translate(-11px,-3px)}
+  44%{transform:translate(9px,8px)}55%{transform:translate(-3px,11px)}66%{transform:translate(12px,-5px)}77%{transform:translate(-9px,-10px)}88%{transform:translate(3px,6px)}}
+@media (prefers-reduced-motion:reduce){#grain{animation:none}}
+/* the nozzle cursor (fine pointers only) */
+#cur{position:fixed;left:0;top:0;z-index:35;pointer-events:none;width:0;height:0;display:none}
+#cur .ring{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;border:1.5px solid #fff;mix-blend-mode:difference;
+  transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1),left .35s cubic-bezier(.16,1,.3,1),top .35s cubic-bezier(.16,1,.3,1),background .25s,border-color .25s}
+#cur .lab{position:absolute;left:16px;top:10px;font:400 11px/1 var(--text);letter-spacing:.08em;text-transform:uppercase;color:#fff;white-space:nowrap;mix-blend-mode:difference;transition:opacity .25s}
+#cur.btn .ring{left:-38px;top:-38px;width:76px;height:76px;background:transparent;border-color:#fff;mix-blend-mode:normal}
+#cur.btn .lab{opacity:0}
+#cur.down .ring{left:-5px;top:-5px;width:10px;height:10px;background:#fff}
+@media (pointer:fine){ #cur{display:block} #view,#view *{cursor:none!important} #replay{cursor:none!important} }
+#preMsg{position:absolute;left:50%;top:calc(46% + min(15vw,19vmin));translate:-50% 0;margin:0;font:900 max(14px,2.4vmin)/1 var(--display);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;opacity:0}
+#skip{position:absolute;right:3.2vmin;bottom:3vmin;z-index:2;border:0;background:none;color:inherit;font:400 max(11px,1.05vmin)/1 var(--text);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;opacity:.85;padding:.6em 0}
+#skip:hover{opacity:1}
+#skip:focus-visible{outline:1px solid #fff;outline-offset:4px}
+#burst{position:absolute;left:50%;top:50%;width:180vmax;height:180vmax;translate:-50% -50%;pointer-events:none;--sr:0%}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- spray fill: fine noise decides which "droplets" are painted; raising the intercept fills it in -->
+    <filter id="sprayBlob" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.6 0 0 0 -.3" result="na"/>
+      <feComponentTransfer in="na" result="m"><feFuncA id="sprayBlobFn" type="linear" slope="7" intercept="-7"/></feComponentTransfer>
+      <feComposite in="SourceGraphic" in2="m" operator="in"/>
+    </filter>
+  </defs>
+</svg>
+<div id="view">
+  <div id="sceneBox">
+    <div id="stage">
+      <div id="scene">
+        <video id="vid" muted playsinline preload="auto" disablepictureinpicture><source src="ohsta-run.webm" type="video/webm"><source src="ohsta-run.mp4" type="video/mp4"></video>
+        <canvas id="gl" width="1920" height="1080"></canvas>
+        <canvas id="paint" width="1920" height="1080"></canvas>
+        <img id="guy" alt="">
+        <canvas id="mist" width="1920" height="1080"></canvas>
+        <canvas id="marks" width="1920" height="1080"></canvas>
+        <div id="tags"></div>
+        <div id="sfade"></div>
+      </div>
+    </div>
+    <div id="fade"></div>
+    <div id="grain"></div>
+  </div>
+
+  <div id="ui">
+    <div id="head" class="blk aC aM">
+      <h1 id="incoming" class="hl" aria-label="Incoming"><span class="w1 sprayed"><span class="ch">i</span><span class="ch" style="margin-left:.01538em">n</span><span class="ch" style="margin-left:-.00385em">c</span><span class="ch o blobpart">o</span></span><span class="w2 sprayed"><span class="ch" style="margin-left:-.01923em">m</span><span class="ch" style="margin-left:.01538em">i</span><span class="ch" style="margin-left:.01923em">n</span><span class="ch" style="margin-left:-.00769em">g</span></span></h1>
+      <canvas id="tdrips"></canvas>
+      <div id="blob">
+        <canvas id="splotch" class="blobpart"></canvas>
+        <p id="reserve" class="in blobpart"><span class="fit" data-em="3.893">Reserve</span></p>
+        <p id="cd" class="in blobpart" aria-live="off">00:00:00</p>
+        <img id="ring" class="blobpart" src="__RING__" alt="">
+        <button id="hit" type="button" aria-label="Reserve the Dress Code Violation drop"></button>
+      </div>
+    </div>
+
+    <p id="date" class="blk aC aM"><span class="mline"><span class="jl sprayed">Dropping Friday / 6 PM,</span></span><span class="mline"><span class="ll sprayed">Shipping Worldwide</span></span></p>
+    <p id="day" class="blk aR aT" aria-label="23 October"><span class="mline"><span style="position:relative;left:-.0769em">23 </span></span><span class="mline"><span>  / </span></span><span class="mline"><span>10</span></span></p>
+
+    <p id="fScroll" class="blk foot aL aB fade"><span style="display:block">Scroll</span><span style="display:block">down ↓</span></p>
+    <p id="fDress" class="blk foot aC aB fade"><span class="fit" data-em="11.3333">Dress Code Violation Drop</span><span class="l2"><span class="fit" data-em="10">Suits, Ripped &amp; Reworn</span></span></p>
+    <p id="fNo" class="blk foot aC aB fade"><span class="fit" data-em="4.6667">No restock</span><span class="l2"><span class="fit" data-em="7">Only one chance</span></span></p>
+    <p id="fDrop" class="blk foot aR aB fade"><span class="jl">Drop <span id="count">(010)</span></span><span class="ll">Limited to 300 pieces</span></p>
+
+    <p id="tagline" class="blk aC aT fade"><span class="jl">OHSTA.Studio, Limited Drops</span><span class="jl">One Collection a Month,</span><span class="ll">Gone in a Day</span></p>
+
+    <div id="logo" class="blk aL aT" aria-label="OHSTA">
+      <canvas id="logoSpray"></canvas>
+      <p id="logoText">OH</p>
+    </div>
+
+    <button id="replay" type="button">↻ Replay intro</button>
+  </div>
+</div>
+<div id="hint">Hold to spray</div>
+<div id="cur"><i class="ring"></i><span class="lab">Hold to spray</span></div>
+<div id="flash"></div>
+<div id="pre" aria-hidden="true">
+  <canvas id="preNoise" width="160" height="90"></canvas>
+  <i class="corner a"></i><i class="corner b"></i><i class="corner c"></i><i class="corner d"></i>
+  <div class="hud tl"><span class="rec">●</span> Rec · Cam 03 · Ext. wall</div>
+  <div class="hud tr" id="preClock">23.10.2026 · 03:59:57</div>
+  <p id="preCount">000<small>Loading the drop</small></p>
+  <svg id="eyes" viewBox="0 0 240 70" aria-hidden="true">
+    <defs>
+      <clipPath id="eyeL"><path d="M14 35 Q62 2 110 35 Q62 66 14 35Z"/></clipPath>
+      <clipPath id="eyeR"><path d="M130 35 Q178 2 226 35 Q178 66 130 35Z"/></clipPath>
+    </defs>
+    <g class="lid" id="lidL"><g clip-path="url(#eyeL)"><rect x="0" y="0" width="120" height="70" fill="#eef0ff"/>
+      <g class="pupil"><circle cx="62" cy="35" r="15" fill="#0013ff"/><circle cx="62" cy="35" r="7.5" fill="#000"/><circle cx="57" cy="30" r="3" fill="#fff"/></g></g></g>
+    <g class="lid" id="lidR"><g clip-path="url(#eyeR)"><rect x="120" y="0" width="120" height="70" fill="#eef0ff"/>
+      <g class="pupil"><circle cx="178" cy="35" r="15" fill="#0013ff"/><circle cx="178" cy="35" r="7.5" fill="#000"/><circle cx="173" cy="30" r="3" fill="#fff"/></g></g></g>
+  </svg>
+  <p id="preMsg">Coast is clear.</p>
+  <canvas id="burst"></canvas>
+  <button id="skip" type="button">Skip →</button>
+</div>
+
+<script>
+/* two photo scenes: the 16:9 desktop frame and the portrait "mob" frame. Each has its own clean wall,
+   sprayed wall, reveal map, cut-out of the guy, nozzle position and spray path (in that photo's pixels). */
+const SCENES = {
+  desk: { W: 1920, H: 1080, clean: "__CLEAN__", painted: "__PAINTED__", map: "__MAP__", guy: "__GUY__",
+          nozzle: { x: 1113, y: 360 }, strokes: __STROKES__, k: 1, tagFs: 17 / 1920, focus: '80% 42%',
+          outline: __VOUT__,
+          marks: [{ n: '01', label: 'Jacket — reworn', lx: 1556, ly: 392, side: 'l', parts: ['jacket'] },
+                  { n: '02', label: 'Trousers — ripped', lx: 1566, ly: 800, side: 'l', parts: ['trousers', 'rip'] }] },
+  mob:  { W: 1000, H: 1849, clean: "__MCLEAN__", painted: "__MPAINTED__", map: "__MMAP__", guy: "__MGUY__",
+          nozzle: { x: 594, y: 556 }, strokes: __MSTROKES__, k: .6, tagFs: 25 / 1000, focus: '80% 33%',
+          outline: __MOUT__,
+          marks: [{ n: '01', label: 'Jacket — reworn', lx: 736, ly: 622, side: 'r', parts: ['jacket'] },
+                  { n: '02', label: 'Trousers — ripped', lx: 758, ly: 770, side: 'r', parts: ['trousers', 'rip'] }] }
+};
+/* desktop plays the filmed run-in: same frame size as the desktop photo, marks placed on the guy's final position */
+SCENES.vid = { ...SCENES.desk, focus: '70% 46%' };
+const MOBILE = matchMedia('(max-aspect-ratio: 4/5)');
+const vid = document.getElementById('vid');
+const VIDEO_START = .2, VIDEO_RATE = 1.1, TAG_DONE = 8.5;     // seconds in the clip: start just before he bursts in; tag finished
+const isVideo = () => SC === SCENES.vid;
+const pickScene = () => MOBILE.matches ? SCENES.mob : SCENES.vid;
+let SC = SCENES.desk, W = 1920, H = 1080, NOZZLE = SC.nozzle;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s);
+const stage = $('#stage'), scene = $('#scene'), view = $('#view'), head = $('#head'), blob = $('#blob');
+const headPx = () => parseFloat(getComputedStyle(head).fontSize);
+
+/* pointer → photo space */
+function toStage(cx, cy){ const r = stage.getBoundingClientRect(); return { x: (cx - r.left) / r.width * W, y: (cy - r.top) / r.height * H }; }
+
+/* lines that use a stand-in weight are stretched to their Figma width (stored in em of their own size) */
+function fitText(){
+  document.querySelectorAll('.fit[data-em]').forEach(el => {
+    el.style.transform = '';
+    const target = +el.dataset.em * parseFloat(getComputedStyle(el).fontSize);
+    el.style.transform = `scaleX(${target / el.offsetWidth})`;
+  });
+  // justified lines keep Figma's breaks; a line wider than its box is squeezed instead of wrapping
+  document.querySelectorAll('.jl, .ll').forEach(line => {
+    line.classList.remove('squeezed'); line.style.transform = '';
+    const box = line.parentElement.classList.contains('mline') ? line.parentElement.parentElement : line.parentElement;
+    const w = box.clientWidth, probe = document.createElement('span');
+    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font:inherit;letter-spacing:inherit';
+    probe.innerHTML = line.innerHTML; line.appendChild(probe);
+    const nat = probe.getBoundingClientRect().width; probe.remove();
+    if (nat > w + .5){ line.classList.add('squeezed'); line.style.transform = `scaleX(${w / nat})`; }
+  });
+}
+/* the stencil: an outline copy of the headline, under the real one */
+const stencil = (() => { const c = $('#incoming').cloneNode(true); c.removeAttribute('id'); c.removeAttribute('aria-label');
+  c.setAttribute('aria-hidden', 'true'); c.classList.add('stencil'); c.querySelectorAll('.sprayed').forEach(e => e.classList.remove('sprayed'));
+  $('#incoming').before(c); return c; })();
+/* pin the blob group to the centre of the blue O, wherever the headline wraps */
+function placeBlob(){
+  const o = $('#incoming .o'), f = headPx();
+  blob.style.left = ((o.offsetLeft + o.offsetWidth / 2) / f + .025) + 'em';   // + half of the -0.05em tracking
+  blob.style.top = ((o.offsetTop + o.offsetHeight / 2) / f) + 'em';
+}
+/* logo: on phones its letters' ink is snapped to the grid's left edge and top line */
+function placeLogo(){
+  const lg = $('#logo'), t = $('#logoText'), f = parseFloat(getComputedStyle(lg).fontSize);
+  const c = document.createElement('canvas').getContext('2d'); c.font = `900 ${f}px "OH Display"`;
+  const m = c.measureText('OH'), lineTop = (t.offsetHeight - (m.fontBoundingBoxAscent + m.fontBoundingBoxDescent)) / 2;
+  lg.style.setProperty('--ink-l', (m.actualBoundingBoxLeft * -1) / f + 'em');
+  lg.style.setProperty('--ink-t', (lineTop + m.fontBoundingBoxAscent - m.actualBoundingBoxAscent) / f + 'em');
+}
+let rsT = 0;
+addEventListener('resize', () => { fitText(); placeBlob(); placeLogo(); sizeTags(); clearTimeout(rsT); rsT = setTimeout(() => { paintSplotches(); layoutTypeDrips(); drawMarks(introDone ? 1 : 0); }, 120); });
+
+/* ---------- WebGL: clean wall → sprayed wall ---------- */
+const glc = $('#gl');
+const gl = glc.getContext('webgl', { premultipliedAlpha: false, antialias: false });
+let uP = null, glReady = false;
+const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+let prog = null, texs = [], uRes = null, sceneReady = false;
+function initGL(){
+  if (!gl) return;
+  const vs = `attribute vec2 a;varying vec2 v;void main(){v=vec2((a.x+1.)*.5,(1.-a.y)*.5);gl_Position=vec4(a,0.,1.);}`;
+  // letter bodies (map B = 1) are revealed by the brush mask the can paints along the strokes (tB);
+  // drips (B = 0) are revealed by the timing map as the paint runs; the fresh paint looks wet for a moment
+  const fs = `precision highp float;varying vec2 v;uniform sampler2D tC,tP,tM,tB;uniform float uP;uniform vec2 uRes;
+    float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+    void main(){
+      vec4 m=texture2D(tM,v); vec4 b=texture2D(tB,v);
+      vec3 c=texture2D(tC,v).rgb, p=texture2D(tP,v).rgb;
+      float t=m.g+(h(floor(v*uRes))-.5)*.03;
+      float r=smoothstep(t,t+.03,uP);
+      float a=m.r*mix(r,b.r,step(.5,m.b));
+      float wet=mix(r*(1.-smoothstep(t+.02,t+.12,uP)),b.g,step(.5,m.b));
+      p=mix(p,p*vec3(.78,.93,1.2)+.03,wet*.55);
+      gl_FragColor=vec4(mix(c,p,a),1.);
+    }`;
+  const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; };
+  prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog); gl.useProgram(prog);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const a = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
+  gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
+  ['tC', 'tP', 'tM', 'tB'].forEach((name, i) => {
+    const tx = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, tx);
+    const f = name === 'tM' ? gl.NEAREST : gl.LINEAR;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, f); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, f);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.uniform1i(gl.getUniformLocation(prog, name), i); texs.push(tx);
+  });
+  uP = gl.getUniformLocation(prog, 'uP'); uRes = gl.getUniformLocation(prog, 'uRes');
+}
+/* switch the photo scene (desktop 16:9 ↔ mobile portrait) */
+async function loadScene(cfg){
+  sceneReady = false; SC = cfg; W = cfg.W; H = cfg.H; NOZZLE = cfg.nozzle;
+  ['#gl', '#paint', '#mist', '#marks'].forEach(q => { const c = $(q); c.width = W; c.height = H; });
+  scene.style.transformOrigin = cfg.focus;
+  view.classList.toggle('video-mode', cfg === SCENES.vid);
+  brushSetup(cfg); buildTags(cfg);
+  $('#guy').src = cfg.guy;
+  paint.clearRect(0, 0, W, H); drips = []; parts = [];
+  const [c, p, m] = await Promise.all([loadImg(cfg.clean), loadImg(cfg.painted), loadImg(cfg.map)]);
+  if (SC !== cfg) return;
+  if (!gl){ glc.getContext('2d').drawImage(p, 0, 0); return; }
+  [c, p, m].forEach((img, i) => { gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, texs[i]); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img); });
+  gl.uniform2f(uRes, W, H);
+  glReady = true; sceneReady = true;
+  if (introDone || REDUCED){ brushFill(); drawMarks(1); }
+}
+function drawGL(p){ if (!glReady) return; gl.viewport(0, 0, W, H); gl.uniform1f(uP, p); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); }
+
+/* ---------- mist particles + visitor spray (photo space) ---------- */
+const mist = $('#mist').getContext('2d');
+const paint = $('#paint').getContext('2d');
+let parts = [];
+const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+function emitMist(tx, ty, n, rr){
+  const dx = tx - NOZZLE.x, dy = ty - NOZZLE.y, d = Math.hypot(dx, dy), ang = Math.atan2(dy, dx);
+  const spread = Math.atan2((rr || 40 * SC.k) * .9, d);       // cone just wide enough for the stroke
+  for (let i = 0; i < n; i++){
+    const a = ang + gauss() * spread, life = 0.16 + Math.random() * 0.14, sp = d / life * (0.85 + Math.random() * 0.3);
+    parts.push({ x: NOZZLE.x, y: NOZZLE.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life, age: 0, r: (0.6 + Math.random() * 1.6) * Math.max(.7, SC.k) });
+  }
+}
+// a puff at the nozzle: droplets burst outward from the point the can is aimed at (we look straight at the wall)
+function emitPuff(x, y, n, col, rad){
+  for (let i = 0; i < n; i++){
+    const a = Math.random() * 6.283, sp = (40 + Math.random() * 150) * Math.max(.6, SC.k), r0 = Math.abs(gauss()) * rad * .45;
+    parts.push({ x: x + Math.cos(a) * r0, y: y + Math.sin(a) * r0, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+      life: .2 + Math.random() * .3, age: 0, r: (.6 + Math.random() * 1.6) * Math.max(.7, SC.k), c: col });
+  }
+}
+function stepMist(dt, cloud){
+  mist.clearRect(0, 0, W, H);
+  if (cloud){
+    const R = (cloud.r ? cloud.r * 2.1 : 70 * SC.k), g = mist.createRadialGradient(cloud.x, cloud.y, 0, cloud.x, cloud.y, R);
+    if (cloud.c === 'b'){ g.addColorStop(0, `rgba(0,19,255,${.3 * cloud.k})`); g.addColorStop(.5, `rgba(20,40,255,${.12 * cloud.k})`); g.addColorStop(1, 'rgba(40,60,255,0)'); }
+    else { g.addColorStop(0, `rgba(20,80,200,${0.26 * cloud.k})`); g.addColorStop(.6, `rgba(30,95,215,${0.1 * cloud.k})`); g.addColorStop(1, 'rgba(40,110,230,0)'); }
+    mist.fillStyle = g; mist.fillRect(cloud.x - R, cloud.y - R, 2 * R, 2 * R);
+  }
+  parts = parts.filter(p => (p.age += dt) < p.life * 1.25);
+  for (const p of parts){
+    const k = p.age / p.life, slow = k > 1 ? 0.15 : 1;
+    p.x += p.vx * dt * slow; p.y += p.vy * dt * slow + 12 * dt;
+    const a = Math.max(0, k < 1 ? 0.42 * (1 - k * 0.4) : 0.25 * (1.25 - k) * 4), b = Math.min(1, k * 1.4);
+    mist.fillStyle = p.c === 'w' ? `rgba(255,255,255,${a * .9})` : p.c === 'b' ? `rgba(${120 - 120 * b},${140 - 121 * b},255,${a * 1.3})`
+                   : `rgba(${200 - 180 * b},${220 - 120 * b},255,${a})`;
+    mist.beginPath(); mist.arc(p.x, p.y, p.r * (1 + k), 0, 6.283); mist.fill();
+  }
+}
+/* the visitor's can: brand blue, heavy. Slow hand = wide wet stroke; fast flick = thin dusty line;
+   hold still and the paint pools and runs. */
+const DOT_B = sprite('0,19,255', [[0, 1], [.35, .95], [.6, .4], [1, 0]]), HALO_B = sprite('10,30,255', [[0, .55], [.5, .18], [1, 0]]);
+function dab(x, y, slow, wet){
+  const k = SC.k, R = 30 * k * (.7 + .55 * slow) * (1 + .35 * Math.min(1, wet));
+  paint.globalAlpha = .05 + .05 * slow; paint.drawImage(HALO_B, x - R * 2.2, y - R * 2.2, R * 4.4, R * 4.4);
+  const r = R * (.42 + .3 * slow);
+  paint.globalAlpha = .16 + .34 * slow; paint.drawImage(DOT_B, x - r * 1.6, y - r * 1.6, r * 3.2, r * 3.2);
+  paint.globalAlpha = 1; paint.fillStyle = 'rgba(0,19,255,.55)';
+  for (let i = 0; i < 9; i++){
+    const rr = R * (.6 + Math.abs(gauss()) * 1.3), a = Math.random() * 6.283;
+    paint.beginPath(); paint.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, (.5 + Math.random() * 1.5) * k, 0, 6.283); paint.fill();
+  }
+}
+let drips = [];
+function spawnDrip(x, y, big){
+  const k = SC.k;
+  drips.push({ x, y, len: 0, v: (110 + Math.random() * 120) * k, w: (big ? 5 + Math.random() * 4 : 2.5 + Math.random() * 3) * k,
+               max: (big ? 140 + Math.random() * 260 : 50 + Math.random() * 120) * k, ph: Math.random() * 6.283 });
+}
+function stepDrips(dt){
+  paint.fillStyle = 'rgb(0,19,255)';
+  drips = drips.filter(d => {
+    const prev = d.len; d.len = Math.min(d.max, d.len + d.v * dt); d.v *= Math.pow(.5, dt);
+    const k = SC.k, steps = Math.max(1, Math.ceil((d.len - prev) / (1.2 * k)));
+    for (let i = 1; i <= steps; i++){
+      const l = prev + (d.len - prev) * i / steps, w = d.w * .5 * (1 - .4 * l / d.max);
+      paint.beginPath(); paint.arc(d.x + Math.sin(l * .025 / k + d.ph) * 1.4 * k, d.y + l, w, 0, 6.283); paint.fill();
+    }
+    if (d.v < 10 || d.len >= d.max){
+      const bx = d.x + Math.sin(d.len * .025 / k + d.ph) * 1.4 * k;
+      paint.beginPath(); paint.ellipse(bx, d.y + d.len, d.w * .55, d.w * .72, 0, 0, 6.283); paint.fill();
+      return false;
+    }
+    return true;
+  });
+}
+// the hiss: filtered noise, only ever started by the visitor's own press
+let AC = null, hissG = null;
+function hiss(on, speed){
+  try {
+    if (on && !AC){
+      AC = new (window.AudioContext || window.webkitAudioContext)();
+      const len = AC.sampleRate * 2, buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const src = AC.createBufferSource(); src.buffer = buf; src.loop = true;
+      const hp = AC.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2200;
+      const pk = AC.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = 6800; pk.Q.value = .8; pk.gain.value = 7;
+      const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 12000;
+      hissG = AC.createGain(); hissG.gain.value = 0;
+      src.connect(hp).connect(pk).connect(lp).connect(hissG).connect(AC.destination); src.start();
+    }
+    if (!AC) return;
+    if (on) AC.resume();
+    const t = AC.currentTime, g = on ? .055 + .03 * (speed || 0) : 0;
+    hissG.gain.cancelScheduledValues(t); hissG.gain.setTargetAtTime(g, t, on ? .012 : .06);
+  } catch (e) {}
+}
+
+/* ---------- intro timeline ---------- */
+const EASE = 'cubic-bezier(.16,1,.3,1)';
+let t0 = 0, introDone = false, last = 0;
+
+// paint drops fly out of the O — sized and moved in em of the headline, so they scale with it
+function splash(n = 16, spread = 1){
+  for (let i = 0; i < n; i++){
+    const d = document.createElement('div'); d.className = 'drop';
+    const s = .02 + Math.random() * .055;
+    d.style.width = d.style.height = s + 'em';
+    d.style.left = (mag.x - s / 2) + 'em'; d.style.top = (mag.y - s / 2) + 'em';
+    blob.appendChild(d);
+    const a = Math.random() * 6.283, r = (.54 + Math.random() * .62) * spread;
+    d.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${Math.cos(a) * r}em,${Math.sin(a) * r * .62}em) scale(0)` }],
+      { duration: 600 + Math.random() * 400, easing: 'cubic-bezier(.2,.8,.3,1)' }).onfinish = () => d.remove();
+  }
+}
+const wipeIn = (el, opts) => el.animate([{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], opts);
+
+/* ---- spray-paint splotch generator (button + logo) ----
+   Shape: an ellipse whose radius wobbles with a few low harmonics and bumps. Per pixel: a solid core,
+   a speckled spray edge (grain thinned out with distance), a faint halo; drips are drawn as vector
+   runs from the lower edge that grow, slow down and stop with a bead of paint at the tip. */
+function mulberry(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function makeSplotch(cfg){
+  const R = mulberry(cfg.seed), H = [];
+  for (let k = 2; k <= 9; k++) H.push([k, (R() * 2 - 1) * cfg.wobble / Math.pow(k, .75), R() * 6.283]);
+  const bumps = []; for (let i = 0; i < cfg.bumps; i++) bumps.push([R() * 6.283, .04 + R() * .07, .18 + R() * .25]);
+  const radius = th => { let r = 1; for (const [k, a, p] of H) r += a * Math.sin(k * th + p);
+    for (const [c, a, w] of bumps){ let d = Math.atan2(Math.sin(th - c), Math.cos(th - c)); r += a * Math.exp(-(d * d) / (w * w)); } return r; };
+  // drips: positions along the lower edge, lengths, widths, timing
+  const drips = (cfg.drips || []).map(([x, L, w, delay]) => ({ x, L, w, delay, wob: R() * 6.283 }));
+  return { ...cfg, radius, drips, grid: Array.from({ length: 33 * 33 }, R), base: null };
+}
+// distance-like field: 1 on the outline, <1 inside
+function field(S, x, y){
+  const c = Math.cos(-S.rot), s = Math.sin(-S.rot);
+  const u = (x * c - y * s) / S.rx, v = (x * s + y * c) / S.ry;
+  return Math.hypot(u, v) / S.radius(Math.atan2(v, u));
+}
+function lowNoise(S, x, y){   // smooth value noise on a 32×32 grid over the canvas
+  const gx = x * 32, gy = y * 32, i = Math.floor(gx), j = Math.floor(gy), fx = gx - i, fy = gy - j, g = S.grid;
+  const at = (a, b) => g[Math.min(32, Math.max(0, b)) * 33 + Math.min(32, Math.max(0, a))];
+  const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  return (at(i, j) * (1 - sx) + at(i + 1, j) * sx) * (1 - sy) + (at(i, j + 1) * (1 - sx) + at(i + 1, j + 1) * sx) * sy;
+}
+// paint the static body (core + spray edge + halo) into an offscreen canvas at the element's real pixel size
+function renderBase(S, cv){
+  const dpr = Math.min(2.5, window.devicePixelRatio || 1);           // layout size, ignoring any running transform
+  const sc = Math.min(dpr, (S.maxPx || 1e9) / Math.max(1, cv.offsetWidth));      // huge canvases are painted at low res
+  const W = Math.max(2, Math.round(cv.offsetWidth * sc)), Hh = Math.max(2, Math.round(cv.offsetHeight * sc));
+  cv.width = W; cv.height = Hh;
+  const em = W / S.w, off = document.createElement('canvas'); off.width = W; off.height = Hh;
+  const ctx = off.getContext('2d'), img = ctx.createImageData(W, Hh), d = img.data, R = mulberry(S.seed * 7 + 3);
+  const [cr, cg, cb] = S.color, grain = S.grain * em;     // grain size in px
+  for (let py = 0; py < Hh; py++){
+    for (let px = 0; px < W; px++){
+      const x = px / em - S.cx, y = py / em - S.cy, f = field(S, x, y);
+      if (f > 1.9) continue;
+      const core = 1 - smooth(.94, 1.02, f);
+      // spray edge: droplets get sparser with distance; clumped by low noise so it is not uniform hiss
+      const dens = f < 1 ? 1 : Math.exp(-(f - 1) / S.edge) * (.55 + .45 * lowNoise(S, px / W, py / Hh));
+      const spk = (R() < dens * .38) ? .5 + R() * .5 : 0;
+      const halo = f > .9 ? S.halo * Math.exp(-(f - .95) / .22) : 0;
+      const a = 1 - (1 - core) * (1 - spk) * (1 - halo);
+      if (a < .01) continue;
+      const shade = .9 + .1 * lowNoise(S, px / W * 2.3 % 1, py / Hh * 2.3 % 1);   // paint density varies a little
+      const k = (py * W + px) * 4, hw = halo / Math.max(a, 1e-3) * (1 - core);
+      d[k] = cr * shade + 40 * hw; d[k + 1] = cg * shade + 40 * hw; d[k + 2] = Math.min(255, cb * shade + 10 * hw); d[k + 3] = a * 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  S.base = off; S.em = em; S.W = W; S.H = Hh;
+}
+function smooth(a, b, x){ const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); }
+// lower edge of the splotch straight below x (em, relative to centre)
+function edgeY(S, x){ let y = 0; while (y < 2 && field(S, x, y) < .97) y += .004; return y; }
+// draw base + drips at time t (ms since the drips started; Infinity = finished)
+function drawSplotch(S, cv, t){
+  if (!S.base) return;
+  const ctx = cv.getContext('2d'), em = S.em, [cr, cg, cb] = S.color;
+  ctx.clearRect(0, 0, S.W, S.H); ctx.drawImage(S.base, 0, 0);
+  for (const dr of S.drips){
+    const tt = Math.max(0, t - dr.delay) / 1000;
+    if (tt <= 0) continue;
+    const len = dr.L * (1 - Math.exp(-tt / (.35 + dr.L * .9)));   // longer runs keep moving longer
+    drawRun(ctx, v => (S.cx + v) * em, v => (S.cy + v) * em, em, dr.x, edgeY(S, dr.x) - .03, len, dr.L, dr.w, dr.wob, S.color, true);
+  }
+}
+// one run of paint: a fillet where it leaves the shape, a run that thins, then swells into an elongated bead
+function drawRun(ctx, X, Y, em, x0, y0, len, L, w, wob, col, gloss){
+  const sway = s => Math.sin(s * 9 + wob) * w * .25 * Math.min(1, s / .2);
+  const bead = w * (.42 + .16 * Math.min(1, len / L)), beadL = bead * 1.9;
+  const steps = 32, left = [], right = [];
+  for (let i = 0; i <= steps; i++){
+    const sN = i / steps, sl = sN * len;
+    const fillet = 1 + 2.4 * Math.exp(-sl / .05);
+    const taper = 1 - .32 * smooth(0, .85, sN);
+    const swell = 1 + (bead / (w / 2) - 1) * smooth(len - beadL * 1.6, len - beadL * .2, sl);
+    const half = w / 2 * fillet * taper * swell;
+    left.push([X(x0 + sway(sl) - half), Y(y0 + sl)]); right.push([X(x0 + sway(sl) + half), Y(y0 + sl)]);
+  }
+  ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
+  ctx.beginPath(); ctx.moveTo(...left[0]);
+  left.forEach(p => ctx.lineTo(...p)); right.reverse().forEach(p => ctx.lineTo(...p)); ctx.closePath(); ctx.fill();
+  const bx = X(x0 + sway(len)), by = Y(y0 + len);
+  ctx.beginPath(); ctx.ellipse(bx, by - bead * .2 * em, bead * em, bead * 1.15 * em, 0, 0, 6.283); ctx.fill();
+  if (gloss){
+    if (len > .04){
+      ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = Math.max(.6, w * .16 * em); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(X(x0 + sway(.06) - w * .18), Y(y0 + .06));
+      for (let i = 1; i <= 10; i++){ const sl = .06 + (len - .08) * i / 10; ctx.lineTo(X(x0 + sway(sl) - w * .18), Y(y0 + sl)); }
+      ctx.stroke();
+    }
+    ctx.fillStyle = 'rgba(255,255,255,.32)';
+    ctx.beginPath(); ctx.ellipse(bx - bead * .34 * em, by - bead * .5 * em, bead * .16 * em, bead * .3 * em, -.25, 0, 6.283); ctx.fill();
+  } else {
+    // white paint: a soft shadow on the right edge gives the run body
+    ctx.fillStyle = 'rgba(0,0,0,.10)';
+    ctx.beginPath(); ctx.ellipse(bx + bead * .3 * em, by, bead * .35 * em, bead * .8 * em, 0, 0, 6.283); ctx.fill();
+  }
+}
+// the two splotches (sizes in em of their element's font: headline for the button, logo for the mark)
+const BTN = makeSplotch({ seed: 23, w: 1.6, cx: .8, cy: .62, rx: .5, ry: .37, rot: -.06, wobble: .08, bumps: 5, edge: .065, halo: .16, grain: .006,
+  color: [0, 19, 255], drips: [[-.16, .66, .05, 0], [.04, .28, .036, 260], [.23, .46, .044, 140], [-.32, .14, .03, 420]] });
+const LOGO = makeSplotch({ seed: 7, w: 3.4, cx: 1.58, cy: 1.18, rx: 1.42, ry: .58, rot: -.09, wobble: .07, bumps: 3, edge: .1, halo: .14, grain: .02,
+  color: [0, 19, 255], drips: [[-.55, .4, .1, 0], [.45, .22, .08, 220]] });
+// the preloader's burst: one huge splotch that floods the screen (its canvas is 180% of the screen's long side)
+const BURST = makeSplotch({ maxPx: 640, seed: 5, w: 1, cx: .5, cy: .5, rx: .44, ry: .4, rot: .2, wobble: .09, bumps: 6, edge: .05, halo: .1, grain: .004,
+  color: [0, 19, 255], drips: [] });
+let dripT0 = -Infinity, dripLive = false;
+function paintSplotches(){
+  renderBase(BTN, $('#splotch')); renderBase(LOGO, $('#logoSpray'));
+  drawSplotch(BTN, $('#splotch'), dripLive ? performance.now() - dripT0 : Infinity);
+  drawSplotch(LOGO, $('#logoSpray'), dripLive ? performance.now() - dripT0 : Infinity);
+}
+function startDrips(delay){
+  dripLive = true; dripT0 = performance.now() + delay;
+  rafFor(0, delay + 4200, () => { const t = performance.now() - dripT0; drawSplotch(BTN, $('#splotch'), t); drawSplotch(LOGO, $('#logoSpray'), t - 1500); },
+    () => { dripLive = false; drawSplotch(BTN, $('#splotch'), Infinity); drawSplotch(LOGO, $('#logoSpray'), Infinity); });
+}
+
+/* splotch grows out from where the can points: radial mask from 0 to full, with a soft rim */
+/* a spray stain: one short blast of the can at (cx, cy) em of `host`.
+   A cloud puffs out, droplets pile up from the centre outwards (noise filter + radial mask) going from soft to sharp,
+   the stain settles with a tiny kick, mist flies off and a few specks stay on the wall. */
+function sprayStain(el, host, cx, cy, size, delay, opts = {}){
+  const dur = opts.dur || 520, f = parseFloat(getComputedStyle(host).fontSize) || 16;
+  el.style.setProperty('--sr', '0%');
+  setTimeout(() => {
+    // the cloud
+    const hz = document.createElement('div'); hz.className = 'haze';
+    hz.style.cssText = `left:${cx - size * .8}em;top:${cy - size * .8}em;width:${size * 1.6}em;height:${size * 1.6}em`;
+    host.appendChild(hz);
+    hz.animate([{ opacity: 0, transform: 'scale(.35)' }, { opacity: 1, transform: 'scale(.9)', offset: .25 }, { opacity: 0, transform: 'scale(1.35)' }],
+      { duration: 900, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => hz.remove();
+    // fine mist blown outwards
+    for (let i = 0; i < (opts.mist || 46); i++){
+      const m = document.createElement('div'); m.className = 'mistb';
+      const sz = size * (.008 + Math.random() * .022), a = Math.random() * 6.283, r0 = size * .15 * Math.random(), r1 = size * (.55 + Math.random() * .7);
+      m.style.cssText = `width:${sz}em;height:${sz}em;left:${cx + Math.cos(a) * r0 - sz / 2}em;top:${cy + Math.sin(a) * r0 * .8 - sz / 2}em`;
+      host.appendChild(m);
+      m.animate([{ opacity: .9, transform: 'translate(0,0)' }, { opacity: 0, transform: `translate(${Math.cos(a) * r1}em,${Math.sin(a) * r1 * .8}em)` }],
+        { duration: 380 + Math.random() * 380, easing: 'cubic-bezier(.1,.7,.3,1)' }).onfinish = () => m.remove();
+    }
+  }, delay);
+  // droplets pile up from the centre out, soft → sharp
+  const fn = document.getElementById('sprayBlobFn');
+  rafFor(delay + 40, dur, (k, on) => {
+    if (!on) return;
+    const e = 1 - Math.pow(1 - k, 2.2);
+    el.style.setProperty('--sr', (28 + 122 * Math.min(1, e * 1.35)) + '%');
+    fn.setAttribute('intercept', (-6.2 + 6.8 * e).toFixed(3));
+    el.style.filter = `url(#sprayBlob) blur(${((1 - e) * .012 * f).toFixed(2)}px)`;
+  }, () => { el.style.filter = ''; el.style.setProperty('--sr', '150%'); });
+  el.animate([{ transform: 'scale(.86)' }, { transform: 'scale(1.05)', offset: .55 }, { transform: 'scale(.99)', offset: .8 }, { transform: 'scale(1)' }],
+    { duration: dur + 260, delay: delay + 40, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'both' });
+}
+function growSplotch(el, delay, dur){
+  el.style.setProperty('--sr', '0%');
+  rafFor(delay, dur, (k, on) => { if (on) el.style.setProperty('--sr', (150 * (1 - Math.pow(1 - k, 2.4))) + '%'); },
+    () => el.style.setProperty('--sr', '150%'));
+}
+
+/* ---- graffiti effects for the button ---- */
+let fxRAF = [];
+const ease = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+function rafFor(delay, dur, fn, done){
+  const start = performance.now() + delay;
+  const step = now => {
+    const k = Math.min(1, Math.max(0, (now - start) / dur));
+    fn(k, now >= start);
+    if (k < 1) fxRAF.push(requestAnimationFrame(step)); else done && done();
+  };
+  fxRAF.push(requestAnimationFrame(step));
+}
+// 1) the blue O is sprayed in: noise droplets accumulate until the shape is solid
+function sprayFill(els, delay, dur){
+  const fn = document.getElementById('sprayBlobFn');
+  els.forEach(e => e.style.filter = 'url(#sprayBlob)');
+  fn.setAttribute('intercept', '-7');
+  rafFor(delay, dur, k => fn.setAttribute('intercept', (-7 + 7.4 * (1 - Math.pow(1 - k, 1.6))).toFixed(3)),
+    () => els.forEach(e => e.style.filter = ''));
+}
+// 2) overspray: fine specks land around the O and stay on the wall
+function overspray(n, delay, spread){
+  for (let i = 0; i < n; i++){
+    const d = document.createElement('div'); d.className = 'drop speck';
+    const s = .004 + Math.pow(Math.random(), 2.2) * .016, a = Math.random() * 6.283, r = 1 + Math.abs(gauss()) * .55 * spread;
+    d.style.width = d.style.height = s + 'em';
+    d.style.left = (Math.cos(a) * .5 * r - s / 2) + 'em'; d.style.top = (Math.sin(a) * .38 * r - s / 2) + 'em';
+    d.style.opacity = 0;
+    blob.appendChild(d);
+    d.animate([{ opacity: 0, transform: 'scale(2.2)' }, { opacity: .45 + Math.random() * .5, transform: 'scale(1)' }],
+      { duration: 160, delay: delay + Math.random() * 650, fill: 'forwards', easing: 'ease-out' });
+  }
+}
+// 3) the white ring is drawn round the button in one pass, with a puff of white mist at the nozzle
+function sprayRing(delay, dur){
+  const ring = $('#ring');
+  ring.style.setProperty('--ra', '0deg');
+  rafFor(delay, dur, (k, on) => {
+    if (!on) return;
+    const e = ease(k), deg = 400 * e;          // a little over a full turn so the ends overlap
+    ring.style.setProperty('--ra', deg + 'deg');
+    if (k >= 1) return;
+    const phi = (250 + deg) * Math.PI / 180, dx = Math.sin(phi), dy = -Math.cos(phi);
+    const rx = .74, ry = .25, t = 1 / Math.sqrt((dx / rx) ** 2 + (dy / ry) ** 2);
+    for (let i = 0; i < 3; i++){
+      const m = document.createElement('div'); m.className = 'mistdot';
+      const s = .003 + Math.random() * .01; m.style.width = m.style.height = s + 'em';
+      m.style.left = (dx * t + gauss() * .03) + 'em'; m.style.top = (dy * t + gauss() * .03) + 'em';
+      blob.appendChild(m);
+      m.animate([{ opacity: .9, transform: 'translate(0,0)' }, { opacity: 0, transform: `translate(${gauss() * .06}em,${gauss() * .06 + .02}em)` }],
+        { duration: 380 + Math.random() * 300, easing: 'ease-out' }).onfinish = () => m.remove();
+    }
+  }, () => ring.style.setProperty('--ra', '400deg'));
+}
+
+/* ---------- the scene: the tag, the type, the button, then the clothes ---------- */
+let act2Timer = 0, act2Started = false;
+function resetIntro(){
+  document.getAnimations().forEach(a => { if (!a.effect || !a.effect.target || !a.effect.target.closest || !a.effect.target.closest('#pre')) a.cancel(); });
+  breath = null;
+  fxRAF.forEach(cancelAnimationFrame); fxRAF = []; clearTimeout(act2Timer); act2Started = false;
+  document.querySelectorAll('#blob .drop, #blob .mistdot, .haze, .mistb').forEach(d => d.remove());
+  head.querySelectorAll(':scope > .mistdot').forEach(d => d.remove());
+  ['#splotch', '#logoSpray'].forEach(q => $(q).style.filter = '');
+  paint.clearRect(0, 0, W, H); drips = []; parts = [];
+  introDone = false; hint.style.opacity = 0; tdT0 = Infinity; markP = {}; markA = [1, 1];
+}
+function finalState(){
+  introDone = true; stencil.classList.add('done'); $('#ring').style.setProperty('--ra', '400deg'); dripLive = false; paintSplotches();
+  brushFill(); drawMarks(1); drawTypeDrips(Infinity); document.querySelectorAll('#tags .tag').forEach(t => t.style.opacity = 1);
+  if (isVideo()){ const go = () => { vid.pause(); vid.currentTime = vid.duration - .05; }; vid.readyState >= 1 ? go() : vid.addEventListener('loadedmetadata', go, { once: true }); }
+}
+function playIntro(){
+  resetIntro();
+  if (REDUCED){ t0 = performance.now() - 1e6; finalState(); return; }
+  t0 = performance.now();
+  const o = { fill: 'both' };
+  hideAct2();
+  if (isVideo()){
+    // ACT 1 (desktop) — the filmed run-in: he bursts past the lens and writes the tag; only the frame of the page is on screen
+    brush.on = false; brushFill(); drawMarks();
+    vid.pause(); vid.playbackRate = VIDEO_RATE; vid.currentTime = VIDEO_START;
+    const p = vid.play(); if (p && p.catch) p.catch(() => {});
+    ['#logo', '#tagline', '#day', ...document.querySelectorAll('.foot')].forEach((q, i) => {
+      const el = typeof q === 'string' ? $(q) : q;
+      el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 700, delay: 1400 + i * 60, easing: 'ease-out', ...o });
+    });
+    stencil.classList.remove('done');
+    stencil.animate([{ opacity: 0, letterSpacing: '-.02em' }, { opacity: 1, letterSpacing: '-.05em' }], { duration: 1400, delay: 1700, easing: EASE, ...o });
+    act2Timer = setTimeout(() => act2(performance.now() - t0), (TAG_DONE - VIDEO_START) / VIDEO_RATE * 1000);
+  } else {
+    stencil.classList.remove('done');
+    stencil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: 200, easing: 'ease-out', ...o });
+    // ACT 1 (phones) — the can writes OHSTA across the photo along the letter strokes
+    brushReset(); brush.on = true; drawMarks();
+    scene.animate([{ transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 2600, easing: EASE, ...o });
+    scene.animate([{ filter: 'brightness(.55) saturate(.7)' }, { filter: 'brightness(1) saturate(1)' }], { duration: 1200, easing: 'ease-out', ...o });
+    act2(1350);
+  }
+}
+// hold the type, button and callouts back until their act starts
+function hideAct2(){
+  ['#incoming .w1', '#incoming .w2', ...document.querySelectorAll('#date .sprayed')].forEach(q => { const el = typeof q === 'string' ? $(q) : q; el.style.setProperty('--sx', '0%'); el.classList.remove('filled'); });
+  ['#splotch', '#logoSpray'].forEach(q => $(q).style.setProperty('--sr', '0%'));
+  $('#ring').style.setProperty('--ra', '0deg');
+  drawTypeDrips(-1);
+  ['#reserve', '#cd', '#logoText'].forEach(q => $(q).animate([{ opacity: 0 }, { opacity: 0 }], { duration: 1, fill: 'forwards' }));
+  document.querySelectorAll('#tags .tag').forEach(t => t.style.opacity = 0);
+}
+// ACT 2 + 3 — the type is sprayed, the button bursts on the O, then the camera leans in on the clothes.
+// `at` is when the act starts (ms after the intro started); every delay below is relative to it.
+function act2(at){
+  if (act2Started) return; act2Started = true;
+  const o = { fill: 'both' }, d = ms => at + ms - (isVideo() ? (performance.now() - t0) : 0);
+  const D = ms => Math.max(0, d(ms));
+  const w1 = $('#incoming .w1'), w2 = $('#incoming .w2'), hostH = { el: head };
+  // the word is written: INC… then MING (the O is left as a gap)
+  sprayType(w1, D(0), 480, hostH);
+  sprayType(w2, D(470), 520, hostH);
+  setTimeout(() => { stencil.getAnimations().forEach(a => a.cancel()); stencil.classList.add('done'); }, D(1000));
+  // …and finished with one blast of blue on the O: the stain is the button
+  const P = 1040;                                           // the pshh
+  sprayStain($('#splotch'), blob, 0, 0, 1.05, D(P), { dur: 520, mist: 52 });
+  overspray(26, D(P + 60), 1);
+  setTimeout(() => splash(8), D(P + 380));
+  startDrips(D(P + 560));
+  $('#reserve').animate([{ opacity: 0, transform: 'translateY(30%)' }, { opacity: 1, transform: 'none' }], { duration: 420, delay: D(P + 380), easing: EASE, ...o });
+  $('#cd').animate([{ opacity: 0 }, { opacity: .9 }], { duration: 420, delay: D(P + 520), ...o });
+  sprayRing(D(P + 560), 900);
+  setTimeout(() => { tdT0 = performance.now(); rafFor(0, 4200, () => drawTypeDrips(performance.now() - tdT0)); }, D(P + 300));
+  // the logo gets its own small pshh, the date a quick pass
+  sprayStain($('#logoSpray'), $('#logo'), .95, .4, 1.9, D(160), { dur: 420, mist: 26 });
+  $('#logoText').animate([{ opacity: 0, transform: 'translateY(.15em)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: D(520), easing: EASE, ...o });
+  const hostD = { el: $('#date') };
+  document.querySelectorAll('#date .sprayed').forEach((el, i) => sprayType(el, D(P + 260 + i * 240), 360, hostD));
+  document.querySelectorAll('#day .mline>span').forEach((el, i) =>
+    el.animate([{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: 800, delay: D(700 + i * 80), easing: EASE, ...o }));
+  if (!isVideo()) document.querySelectorAll('.fade').forEach((el, i) => el.animate([{ opacity: 0, transform: 'translateY(40%)', filter: 'blur(.35em)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }],
+    { duration: 700, delay: D(P + 500 + i * 50), easing: EASE, ...o }));
+  const cnt = $('#count'); cnt.textContent = '(000)';
+  setTimeout(() => { let n = 0; const iv = setInterval(() => { n++; cnt.textContent = `(${String(n).padStart(3, '0')})`; if (n >= 10) clearInterval(iv); }, 60); }, D(P + 700));
+  // ACT 3 — the camera leans in on the guy, the can rings the jacket and the trousers
+  scene.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.045)' }], { duration: 2600, delay: D(P + 1100), easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' });
+  sprayMarks(D(P + 1400));
+  setTimeout(() => { introDone = true; idle(); }, D(P + 900));
+}
+// a click during the film skips to the finished tag
+function skipFilm(){
+  if (!isVideo() || act2Started || REDUCED) return;
+  vid.pause(); if (vid.duration) vid.currentTime = vid.duration - .05;
+  clearTimeout(act2Timer); act2(performance.now() - t0);
+}
+function idle(){
+  if (REDUCED) return;
+  breathe();
+  $('#ring').animate([{ rotate: '0deg' }, { rotate: '-2.5deg' }, { rotate: '1.5deg' }, { rotate: '0deg' }], { duration: 6000, iterations: Infinity, easing: 'ease-in-out' });
+}
+
+/* ---------- the can: a soft round brush that follows the letter strokes ----------
+   strokes = [[x, y, r, lift], …] in photo pixels, ordered left to right like a writer would spray them.
+   The mask lives on a half-size canvas: R = paint coverage, G = "wet" (fresh paint, dries over ~0.6 s). */
+const BRUSH_T0 = 150, BRUSH_DUR = 1750;
+const brush = { on: false, cv: document.createElement('canvas'), ctx: null, segs: [], total: 0, done: 0, idx: 1, along: 0, wet: null };
+brush.ctx = brush.cv.getContext('2d');
+function brushSetup(cfg){
+  const P = cfg.strokes; brush.cv.width = Math.round(cfg.W / 2); brush.cv.height = Math.round(cfg.H / 2);
+  brush.segs = []; let total = 0;
+  for (let i = 1; i < P.length; i++){
+    const [x0, y0] = P[i - 1], [x1, y1, r, lift] = P[i];
+    const len = lift ? 0 : Math.hypot(x1 - x0, y1 - y0);
+    const cost = lift ? 70 : len;                   // a jump between strokes still takes a beat
+    brush.segs.push({ x0, y0, x1, y1, r, r0: P[i - 1][2], lift, len, cost, at: total }); total += cost;
+  }
+  brush.total = total; brushReset();
+}
+function brushReset(){ brush.ctx.fillStyle = '#000'; brush.ctx.fillRect(0, 0, brush.cv.width, brush.cv.height); brush.done = 0; brush.idx = 0; brush.along = 0; brush.on = false; brushUpload(); }
+function brushFill(){ brush.ctx.fillStyle = '#f00'; brush.ctx.fillRect(0, 0, brush.cv.width, brush.cv.height); brush.on = false; brushUpload(); }
+function brushUpload(){ if (!gl || !texs[3]) return; gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, texs[3]); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, brush.cv); }
+function stamp(x, y, r){
+  const c = brush.ctx, X = x / 2, Y = y / 2, R = r / 2, g = c.createRadialGradient(X, Y, 0, X, Y, R);
+  g.addColorStop(0, 'rgba(255,255,0,1)'); g.addColorStop(.72, 'rgba(255,255,0,1)'); g.addColorStop(1, 'rgba(255,255,0,0)');
+  c.fillStyle = g; c.beginPath(); c.arc(X, Y, R, 0, 6.283); c.fill();
+}
+// advance the brush to time t (ms since the intro started); returns the can's current target
+function brushStep(t){
+  const c = brush.ctx;
+  // fresh paint dries: fade the G (wet) channel a little each frame
+  c.globalCompositeOperation = 'multiply'; c.fillStyle = 'rgb(255,226,255)'; c.fillRect(0, 0, brush.cv.width, brush.cv.height);
+  c.globalCompositeOperation = 'lighter';
+  const ease = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+  const q = Math.min(1, Math.max(0, (t - BRUSH_T0) / BRUSH_DUR)), target = brush.total * (.15 * q + .85 * ease(q));
+  let head = null;
+  while (brush.idx < brush.segs.length && brush.segs[brush.idx].at <= target){
+    const sg = brush.segs[brush.idx], upto = Math.min(sg.cost, target - sg.at);
+    if (sg.lift){ if (upto >= sg.cost){ stamp(sg.x1, sg.y1, sg.r); brush.idx++; brush.along = 0; continue; } head = null; break; }
+    const step = Math.max(1.5, Math.min(sg.r, sg.r0) * .22);
+    while (brush.along + step <= upto){
+      brush.along += step; const k = brush.along / sg.len;
+      stamp(sg.x0 + (sg.x1 - sg.x0) * k, sg.y0 + (sg.y1 - sg.y0) * k, sg.r0 + (sg.r - sg.r0) * k);
+    }
+    const k = Math.min(1, upto / (sg.len || 1));
+    head = { x: sg.x0 + (sg.x1 - sg.x0) * k, y: sg.y0 + (sg.y1 - sg.y0) * k, r: sg.r, k: 1 };
+    if (upto >= sg.cost){ brush.idx++; brush.along = 0; } else break;
+  }
+  c.globalCompositeOperation = 'source-over';
+  brushUpload();
+  if (q >= 1 && brush.idx >= brush.segs.length){
+    if (t > BRUSH_T0 + BRUSH_DUR + 700){ brush.on = false; brushFill(); }   // fully dry, every pixel covered
+    return null;
+  }
+  return head;
+}
+// overall paint time for the drips: rises with the brush, then keeps going so the runs finish
+function brushP(t){
+  const a = BRUSH_T0, b = BRUSH_T0 + BRUSH_DUR;
+  return t < a ? 0 : t < b ? .66 * (t - a) / BRUSH_DUR : Math.min(1.05, .66 + .39 * (t - b) / 1100);
+}
+
+/* ---------- type gets sprayed: a can pass with a soft leading edge and white mist at the nozzle ---------- */
+function sprayType(el, delay, dur, hostEm){
+  el.style.setProperty('--sx', '0%');
+  rafFor(delay, dur, (k, on) => {
+    if (!on) return;
+    const e = 1 - Math.pow(1 - k, 1.6), sx = -6 + 128 * e;
+    el.style.setProperty('--sx', sx + '%');
+    if (k >= 1 || sx < 0 || sx > 100) return;
+    const host = hostEm.el, f = parseFloat(getComputedStyle(host).fontSize);
+    const r = el.getBoundingClientRect(), hr = host.getBoundingClientRect();
+    for (let i = 0; i < 4; i++){
+      const m = document.createElement('div'); m.className = 'mistdot';
+      const sz = (.6 + Math.random() * 2.2) / f;          // px → em of the host
+      m.style.width = m.style.height = sz + 'em';
+      m.style.left = ((r.left - hr.left + r.width * sx / 100) / f + gauss() * .03) + 'em';
+      m.style.top = ((r.top - hr.top + r.height * (.18 + Math.random() * .64)) / f) + 'em';
+      host.appendChild(m);
+      m.animate([{ opacity: .9, transform: 'translate(0,0)' }, { opacity: 0, transform: `translate(${(.4 + Math.random()) * 18}px,${gauss() * 10}px)` }],
+        { duration: 420 + Math.random() * 300, easing: 'ease-out' }).onfinish = () => m.remove();
+    }
+  }, () => { el.style.setProperty('--sx', '130%'); el.classList.add('filled'); });
+  el.animate([{ filter: 'drop-shadow(0 0 .03em rgba(255,255,255,.9))' }, { filter: 'drop-shadow(0 0 0 rgba(255,255,255,0))' }],
+    { duration: dur + 600, delay, easing: 'ease-out', fill: 'backwards' });
+}
+
+/* ---------- white paint running from the headline ---------- */
+// runs fall from N, the second N and G — clear of the date and the footer
+const TDRIPS = [{ i: 1, f: .17, L: .34, w: .05, d: 0 }, { i: 6, f: .86, L: .15, w: .042, d: 300 }, { i: 7, f: .9, L: .44, w: .05, d: 150 }];
+let tdT0 = Infinity;
+function layoutTypeDrips(){
+  const cv = $('#tdrips'), h1 = $('#incoming'), f = headPx(), dpr = Math.min(2.5, devicePixelRatio || 1);
+  const w = h1.offsetWidth, h = h1.offsetHeight + f;
+  cv.style.width = w / f + 'em'; cv.style.height = h / f + 'em';
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const c = document.createElement('canvas').getContext('2d'); c.font = `900 ${f}px "OH Display"`;
+  const mt = c.measureText('I'), asc = mt.fontBoundingBoxAscent, desc = mt.fontBoundingBoxDescent;
+  const chs = [...document.querySelectorAll('#incoming .ch')];
+  TDRIPS.forEach(d => {
+    const ch = chs[d.i], top = ch.offsetTop, left = ch.offsetLeft;     // offsets are relative to the h1
+    d.x = (left + ch.offsetWidth * d.f) / f; d.y = (top + (ch.offsetHeight - asc - desc) / 2 + asc) / f - .02;
+  });
+  cv._dpr = dpr; cv._em = f * dpr;
+  drawTypeDrips(tdT0 === Infinity ? Infinity : performance.now() - tdT0);
+}
+function drawTypeDrips(t){
+  const cv = $('#tdrips'), ctx = cv.getContext('2d'), em = cv._em; if (!em) return;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  TDRIPS.forEach(d => {
+    const tt = (t - d.d) / 1000; if (!(tt > 0)) return;
+    const len = d.L * (1 - Math.exp(-tt / (.35 + d.L * .9)));
+    drawRun(ctx, v => v * em, v => v * em, em, d.x, d.y, len, d.L, d.w, d.i * 1.7, [255, 255, 255], false);
+  });
+}
+
+/* ---------- product callouts: the can traces the jacket and the trousers in white; a stencil tag pops off where the line ends ---------- */
+// one soft spray dot, rendered once and stamped along the path (white for the outlines, brand blue for the visitor's can)
+function sprite(rgb, stops){
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d'), r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  stops.forEach(([o, a]) => r.addColorStop(o, `rgba(${rgb},${a})`));
+  g.fillStyle = r; g.fillRect(0, 0, 64, 64); return c;
+}
+const DOT_W = sprite('255,255,255', [[0, 1], [.3, .92], [.55, .26], [1, 0]]);
+function chaikin(P, closed, n){
+  for (let it = 0; it < n; it++){
+    const Q = [], L = P.length;
+    if (!closed) Q.push(P[0]);
+    for (let i = 0; i < (closed ? L : L - 1); i++){
+      const a = P[i], b = P[(i + 1) % L];
+      Q.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]);
+    }
+    if (!closed) Q.push(P[L - 1]);
+    P = Q;
+  }
+  return P;
+}
+function resample(P, step){
+  const out = [P[0]]; let carry = 0;
+  for (let i = 1; i < P.length; i++){
+    const a = P[i - 1], b = P[i], d = Math.hypot(b[0] - a[0], b[1] - a[1]); if (!d) continue;
+    let s = step - carry;
+    while (s <= d){ out.push([a[0] + (b[0] - a[0]) * s / d, a[1] + (b[1] - a[1]) * s / d]); s += step; }
+    carry = d - (s - step);
+  }
+  return out;
+}
+const plen = P => P.reduce((L, p, i) => i ? L + Math.hypot(p[0] - P[i - 1][0], p[1] - P[i - 1][1]) : 0, 0);
+// a hand-sprayed line round a silhouette: smoothed, pushed a little outside the edge, wobbling, heavier where the can
+// starts, thinning where it lifts off; closed shapes run on past the start the way a quick hand does
+function traceLine(pts, o){
+  const R = mulberry(o.seed), sc = o.sc, step = o.lw * .3;
+  let P = chaikin(pts, o.closed, 2);
+  if (o.start){
+    let bi = 0, bd = Infinity; P.forEach((p, i) => { const d = Math.hypot(p[0] - o.start[0], p[1] - o.start[1]); if (d < bd){ bd = d; bi = i; } });
+    if (o.closed) P = P.slice(bi).concat(P.slice(0, bi)); else if (bi < P.length / 2) P = P.reverse();
+  }
+  let cut = 1;
+  if (o.closed){
+    const L = plen(P), ext = [P[0]]; let acc = 0;
+    for (let i = 1; i < P.length && acc < L * o.over; i++){ acc += Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]); ext.push(P[i]); }
+    P = P.concat(ext); cut = L / (L + acc);
+  }
+  P = resample(P, step);
+  const n = P.length, cx = P.reduce((s, p) => s + p[0], 0) / n, cy = P.reduce((s, p) => s + p[1], 0) / n;
+  const N = P.map((p, i) => { const a = P[Math.max(0, i - 2)], b = P[Math.min(n - 1, i + 2)], tx = b[0] - a[0], ty = b[1] - a[1], l = Math.hypot(tx, ty) || 1; return [ty / l, -tx / l]; });
+  let sg = 0; P.forEach((p, i) => sg += N[i][0] * (p[0] - cx) + N[i][1] * (p[1] - cy)); sg = sg < 0 ? -1 : 1;
+  const ph1 = R() * 6.283, ph2 = R() * 6.283, ph3 = R() * 6.283, S = [], D = [];
+  for (let i = 0; i < n; i++){
+    const u = i / (n - 1), t = i * step;
+    const wob = (Math.sin(t / (90 * sc) + ph1) * 2.4 + Math.sin(t / (31 * sc) + ph2) * .9) * sc;
+    const drift = u > cut ? (u - cut) / (1 - cut) * 10 * sc : 0;
+    const d = sg * (o.off + wob + drift);
+    let w = o.lw * (.9 + .2 * Math.sin(t / (55 * sc) + ph3));
+    if (u < .02) w *= 1.4 - u / .02 * .4;
+    if (u > .965) w *= 1 - (u - .965) / .035 * .6;
+    S.push({ x: P[i][0] + N[i][0] * d, y: P[i][1] + N[i][1] * d, w });
+  }
+  for (let i = 0; i < n; i += 2){
+    if (R() > .6) continue;
+    const s = S[i], a = R() * 6.283, r = s.w * (1.1 + Math.abs(gauss()) * 2.4);
+    D.push({ i, x: s.x + Math.cos(a) * r, y: s.y + Math.sin(a) * r, r: (.45 + R() * 1.05) * sc, a: .3 + R() * .55 });
+  }
+  return { S, D };
+}
+let OUT = null, markP = {}, markA = [1, 1];
+function buildOutlines(cfg){
+  const o = cfg.outline, sc = cfg === SCENES.mob ? .62 : 1, lw = 6.5 * sc, tag = i => [cfg.marks[i].lx, cfg.marks[i].ly];
+  OUT = {
+    jacket: traceLine(o.jacket, { closed: true, over: .06, off: 8 * sc, seed: 3, lw, sc, start: tag(0) }),
+    trousers: traceLine(o.trousers, { closed: false, off: 8 * sc, seed: 9, lw, sc, start: tag(1) }),
+    rip: traceLine(o.rip, { closed: true, over: .32, off: 13 * sc, seed: 5, lw: lw * .85, sc, start: tag(1) }) };
+}
+function buildTags(cfg){
+  buildOutlines(cfg);
+  const box = $('#tags'); box.innerHTML = '';
+  cfg.marks.forEach((m, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'tag'; b.dataset.i = i;
+    b.innerHTML = `<span class="n">${m.n}</span>${m.label}`;
+    b.style.left = (m.lx / cfg.W * 100) + '%'; b.style.top = (m.ly / cfg.H * 100) + '%';
+    b.style.translate = m.side === 'r' ? '-100% -50%' : '0 -50%';
+    b.addEventListener('click', () => hit.click());
+    b.addEventListener('pointerenter', () => focusMark(i));
+    b.addEventListener('pointerleave', () => focusMark(-1));
+    box.appendChild(b);
+  });
+  sizeTags();
+}
+function sizeTags(){ $('#tags').style.fontSize = (stage.offsetWidth * SC.tagFs) + 'px'; }
+function drawMarks(force){
+  const c = $('#marks').getContext('2d'); c.clearRect(0, 0, W, H); if (!OUT) return;
+  c.fillStyle = '#fff';
+  SC.marks.forEach((m, mi) => m.parts.forEach(part => {
+    const p = force ? 1 : (markP[part] || 0); if (p <= 0) return;
+    const { S, D } = OUT[part], n = Math.round(S.length * p), A = markA[mi];
+    c.globalAlpha = .5 * A;
+    for (let i = 0; i < n; i++){ const s = S[i], r = s.w * 1.7; c.drawImage(DOT_W, s.x - r, s.y - r, r * 2, r * 2); }
+    for (const d of D){ if (d.i >= n) break; c.globalAlpha = d.a * A; c.beginPath(); c.arc(d.x, d.y, d.r, 0, 6.283); c.fill(); }
+  }));
+  c.globalAlpha = 1;
+}
+// hovering a tag keeps its outline and dims the other one
+let markFx = 0;
+function focusMark(i){
+  if (!introDone) return;
+  const from = markA.slice(), to = SC.marks.map((m, j) => i < 0 || i === j ? 1 : .22), id = ++markFx;
+  rafFor(0, 260, k => { if (id !== markFx) return; const e = ease(k); markA = from.map((f, j) => f + (to[j] - f) * e); drawMarks(1); });
+}
+const MARK_DUR = { jacket: 1150, trousers: 950, rip: 420 };
+function sprayMarks(delay){
+  markP = {}; markA = [1, 1];
+  const sc = SC === SCENES.mob ? .62 : 1; let t = delay;
+  SC.marks.forEach((m, i) => {
+    m.parts.forEach(part => {
+      const S = OUT[part].S, dur = MARK_DUR[part];
+      rafFor(t, dur, (k, on) => {
+        if (!on) return;
+        const e = k - Math.sin(k * 6.283) / 6.283 * .6;                  // the hand eases in, speeds up, eases out
+        markP[part] = Math.min(1, e); drawMarks();
+        const s = S[Math.min(S.length - 1, Math.round(S.length * markP[part]))];
+        if (k < 1) emitPuff(s.x, s.y, 4, 'w', 12 * sc);
+      });
+      t += dur + 60;
+    });
+    const tag = document.querySelectorAll('#tags .tag')[i];
+    tag.animate([{ opacity: 0, clipPath: 'inset(0 100% 0 0)', transform: 'scale(.9)' }, { opacity: 1, clipPath: 'inset(0 0% 0 0)', transform: 'none' }],
+      { duration: 380, delay: t - 140, easing: 'cubic-bezier(.6,0,.3,1)', fill: 'both' });
+  });
+}
+
+/* ---------- countdown on the button: drop is Fri 23 Oct 2026, 18:00 Berlin (16:00 UTC) ---------- */
+const DROP_AT = Date.UTC(2026, 9, 23, 16, 0, 0);
+function tickCountdown(){
+  const ms = DROP_AT - Date.now(), el = $('#cd');
+  if (ms <= 0){ el.textContent = 'Live now'; $('#reserve .fit').textContent = 'Shop'; fitText(); return; }
+  const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), hh = String(Math.floor(s / 3600) % 24).padStart(2, '0'),
+        mm = String(Math.floor(s / 60) % 60).padStart(2, '0'), ss = String(s % 60).padStart(2, '0');
+  el.textContent = (d ? d + 'd ' : '') + `${hh}:${mm}:${ss}`;
+}
+setInterval(tickCountdown, 1000);
+
+/* ---------- frame loop ---------- */
+function frame(now){
+  const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+  const t = now - t0;
+  let cloud = null;
+  if (!REDUCED && brush.on){
+    const head = brushStep(t);                      // paint the brush mask up to now; returns the can's target
+    if (head){ emitMist(head.x, head.y, Math.round(30 * head.k), head.r); cloud = { x: head.x, y: head.y, k: head.k, r: head.r }; }
+  }
+  drawGL(REDUCED ? 1.05 : brushP(t));
+  if (spraying){ sprayTick(dt); emitPuff(cursor.x, cursor.y, 9, 'b', 30 * SC.k); cloud = { x: cursor.x, y: cursor.y, k: .9, c: 'b', r: 34 * SC.k }; }
+  stepMist(dt, cloud); stepDrips(dt);
+  requestAnimationFrame(frame);
+}
+
+/* ---------- interaction: magnetic O-button, hold-to-spray ---------- */
+const hit = $('#hit'), hint = $('#hint');
+let cursor = { x: 0, y: 0 }, spraying = false, wet = 0, vel = 0, lastDab = { x: 0, y: 0 }, sprayedOnce = false;
+let mag = { x: 0, y: 0 }, magT = { x: 0, y: 0 }, hov = 0, hovT = 0;   // magnet offset in em of the headline
+view.addEventListener('pointermove', e => {
+  cursor = toStage(e.clientX, e.clientY);
+  hint.style.transform = `translate(${e.clientX + 16}px,${e.clientY + 16}px)`;
+  const r = blob.getBoundingClientRect(), fpx = headPx();
+  const cx = r.left, cy = r.top;
+  const dx = (e.clientX - cx) / fpx, dy = (e.clientY - cy) / fpx, d = Math.hypot(dx, dy), R = 1;   // reach: 1 em of the headline
+  magT = (d < R && introDone) ? { x: dx * .2 * (1 - d / R), y: dy * .2 * (1 - d / R) } : { x: 0, y: 0 };
+  if (introDone && !sprayedOnce && e.pointerType === 'mouse' && e.target !== hit) hint.style.opacity = 1;
+  if (e.target === hit) hint.style.opacity = 0;
+});
+view.addEventListener('pointerleave', () => { hint.style.opacity = 0; magT = { x: 0, y: 0 }; spraying = false; hiss(false); });
+view.addEventListener('pointerdown', e => {
+  if (isVideo() && !act2Started && t0 && !REDUCED){ skipFilm(); return; }
+  if (e.target === hit || e.target.id === 'replay' || e.target.closest('.tag') || !introDone) return;
+  cursor = toStage(e.clientX, e.clientY); spraying = true; sprayedOnce = true; hint.style.opacity = 0; lastDab = { ...cursor }; wet = 0; vel = 0;
+  dab(cursor.x, cursor.y, 1, 0); emitPuff(cursor.x, cursor.y, 40, 'b', 36 * SC.k); hiss(true, 0);
+  view.setPointerCapture(e.pointerId);
+});
+addEventListener('pointerup', () => { if (spraying) hiss(false); spraying = false; });
+function sprayTick(dt){
+  const dx = cursor.x - lastDab.x, dy = cursor.y - lastDab.y, moved = Math.hypot(dx, dy), k = SC.k;
+  vel += (moved / Math.max(dt, 1e-3) - vel) * .25;
+  const slow = 1 / (1 + vel / (650 * k));
+  // paint builds up where the hand is slow; past the point the wall can hold, it runs
+  wet = Math.max(0, Math.min(1.8, wet + dt * (slow * 2.4 - .9)));
+  const steps = Math.max(1, Math.ceil(moved / (4 * k)));
+  for (let i = 1; i <= steps; i++) dab(lastDab.x + dx * i / steps, lastDab.y + dy * i / steps, slow, wet);
+  if (wet > 1){ wet -= .35 + Math.random() * .3; spawnDrip(cursor.x + gauss() * 16 * k, cursor.y + (8 + Math.random() * 12) * k, true); }
+  else if (slow > .45 && Math.random() < dt * 1.6) spawnDrip(cursor.x + gauss() * 20 * k, cursor.y + (10 + Math.random() * 10) * k, false);
+  hiss(true, 1 - slow);
+  lastDab = { ...cursor };
+}
+const blobParts = [...document.querySelectorAll('.blobpart')];
+(function magLoop(){
+  mag.x += (magT.x - mag.x) * .14; mag.y += (magT.y - mag.y) * .14; hov += (hovT - hov) * .15;
+  const s = 1 + hov * .06;
+  blobParts.forEach(el => {
+    const k = (el.id === 'reserve' || el.id === 'cd') ? 1.35 : 1;
+    const f = el.id === 'reserve' ? 1 / .13 : el.id === 'cd' ? 1 / .062 : 1;    // labels have their own smaller em
+    el.style.translate = `${mag.x * k * f}em ${mag.y * k * f}em`;
+    el.style.scale = s;
+  });
+  hit.style.translate = `${mag.x}em ${mag.y}em`;
+  requestAnimationFrame(magLoop);
+})();
+hit.addEventListener('pointerenter', () => hovT = 1);
+hit.addEventListener('pointerleave', () => hovT = 0);
+hit.addEventListener('click', () => {
+  splash(22, 1.15); overspray(14, 0, 1.3);
+  ['#splotch'].forEach(s => $(s).animate([{ transform: 'scale(1)' }, { transform: 'scale(.9)', offset: .3 }, { transform: 'scale(1.1)', offset: .65 }, { transform: 'scale(1)' }], { duration: 600, easing: 'ease-out' }));
+  const r = $('#reserve .fit'); r.textContent = 'You’re in'; fitText();
+  clearTimeout(hit._t); hit._t = setTimeout(() => { r.textContent = 'Reserve'; fitText(); }, 2200);
+});
+
+/* ---------- preloader: CCTV, two eyes check the street, the can floods the screen ---------- */
+const pre = $('#pre');
+let preTimers = [], preRun = false;
+(function noise(){
+  const c = $('#preNoise').getContext('2d'), img = c.createImageData(160, 90);
+  setInterval(() => { if (pre.classList.contains('gone')) return;
+    for (let i = 0; i < img.data.length; i += 4){ const v = Math.random() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+    c.putImageData(img, 0, 0); }, 80);
+})();
+setInterval(() => {                                    // the camera clock ticks over 03:59:57 → 04:00…
+  if (pre.classList.contains('gone')) return;
+  const s = 57 + Math.floor((performance.now() - (pre._t || 0)) / 1000), mm = 59 + Math.floor(s / 60), h = 3 + Math.floor(mm / 60);
+  $('#preClock').textContent = `23.10.2026 · ${String(h).padStart(2, '0')}:${String(mm % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}, 250);
+function at(ms, fn){ preTimers.push(setTimeout(fn, ms)); }
+function look(x, dur){ document.querySelectorAll('#eyes .pupil').forEach(p => p.animate([{ transform: getComputedStyle(p).transform === 'none' ? 'translate(0,0)' : getComputedStyle(p).transform }, { transform: `translate(${x}px,0)` }], { duration: dur, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'forwards' })); }
+function lids(sy, dur){ document.querySelectorAll('#eyes .lid').forEach(l => l.animate([{ transform: `scaleY(${l._sy ?? 0})` }, { transform: `scaleY(${sy})` }], { duration: dur, easing: 'ease-out', fill: 'forwards' }) && (l._sy = sy)); }
+/* the loader really loads: the film is fetched whole (so it never stalls). The counter can't run faster than
+   1.7 s and can't pass 99 until the film and the scene are ready. */
+let filmLoad = 0, filmReady = null;
+function loadFilm(){
+  if (filmReady) return filmReady;
+  const webm = vid.canPlayType('video/webm; codecs="vp9"'), src = webm ? 'ohsta-run.webm' : 'ohsta-run.mp4';
+  filmReady = (async () => {
+    try {
+      const r = await fetch(src); if (!r.ok) throw 0;
+      const total = +r.headers.get('content-length') || 0, rd = r.body.getReader(), chunks = []; let got = 0;
+      for (;;){ const { done, value } = await rd.read(); if (done) break; chunks.push(value); got += value.length; if (total) filmLoad = got / total; }
+      vid.src = URL.createObjectURL(new Blob(chunks, { type: webm ? 'video/webm' : 'video/mp4' }));
+    } catch (e) { /* fall back to the <source> elements */ }
+    filmLoad = 1;
+    await new Promise(res => { if (vid.readyState >= 3) return res(); vid.addEventListener('canplaythrough', res, { once: true }); vid.load(); setTimeout(res, 4000); });
+  })();
+  return filmReady;
+}
+function playPre(){
+  preTimers.forEach(id => { clearTimeout(id); cancelAnimationFrame(id); }); preTimers = []; preRun = true;
+  pre.classList.remove('gone'); pre.style.background = '#030305'; pre.style.opacity = ''; pre._t = performance.now();
+  pre.getAnimations({ subtree: true }).forEach(a => a.cancel());
+  pre.querySelectorAll('.hud,.corner,#eyes,#preMsg,#preNoise,#skip,#preCount').forEach(e => e.style.visibility = '');
+  document.querySelectorAll('#eyes .lid').forEach(l => l._sy = 0);
+  const burst = $('#burst'); burst.style.setProperty('--sr', '0%'); burst.style.filter = ''; burst.style.opacity = 1;
+  lids(0, 1); look(0, 1); $('#preMsg').style.opacity = 0;
+  at(150, () => lids(1, 220));                         // eyes open in the dark
+  at(480, () => look(-24, 260));                       // check left…
+  at(860, () => look(24, 300));                        // …check right…
+  at(1240, () => look(0, 220));
+  at(1360, () => { lids(.1, 80); at(80, () => lids(1, 120)); });     // blink
+  const t0p = performance.now(), cnt = $('#preCount'), need = MOBILE.matches ? Promise.resolve() : loadFilm();
+  let ready = false; Promise.all([need, sceneReadyP]).then(() => ready = true);
+  pre._clear = 0;
+  (function tick(){
+    if (!preRun) return;
+    const tf = Math.min(1, (performance.now() - t0p) / 1700), lf = MOBILE.matches ? 1 : filmLoad;
+    const v = Math.floor(100 * Math.min(tf, ready ? 1 : Math.min(.99, lf)));
+    cnt.firstChild.nodeValue = String(v).padStart(3, '0');
+    if (v >= 100 && !pre._clear){ pre._clear = 1; coastClear(); return; }
+    preTimers.push(requestAnimationFrame(tick));
+  })();
+}
+function coastClear(){
+  lids(.55, 160);
+  $('#preMsg').animate([{ opacity: 0, letterSpacing: '.3em' }, { opacity: 1, letterSpacing: '.04em' }], { duration: 320, easing: EASE, fill: 'forwards' });
+  at(520, () => isVideo() && !REDUCED ? cutToFilm() : flood());
+}
+// desktop: the feed cuts to black and the film starts as he bursts past the lens
+function cutToFilm(){
+  preTimers.forEach(id => { clearTimeout(id); cancelAnimationFrame(id); }); preTimers = []; preRun = false;
+  // a camera flash: the feed burns out to white and the film is underneath when it clears
+  $('#flash').animate([{ opacity: 0 }, { opacity: .95, offset: .25 }, { opacity: 0 }], { duration: 420, easing: 'ease-out' });
+  setTimeout(() => { pre.classList.add('gone'); pre.getAnimations({ subtree: true }).forEach(a => a.cancel()); playIntro(); }, 100);
+}
+function flood(){
+  preTimers.forEach(id => { clearTimeout(id); cancelAnimationFrame(id); }); preTimers = []; preRun = false;
+  const burst = $('#burst');
+  renderBase(BURST, burst); drawSplotch(BURST, burst, Infinity);
+  growSplotch(burst, 0, 360);
+  burst.animate([{ transform: 'scale(.55) rotate(-8deg)' }, { transform: 'scale(1) rotate(0deg)' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'forwards' });
+  setTimeout(() => {
+    // the scene starts underneath while the paint dissolves off the screen
+    pre.style.background = 'transparent';
+    pre.querySelectorAll('.hud,.corner,#eyes,#preMsg,#preNoise,#skip').forEach(e => e.style.visibility = 'hidden');
+    playIntro();
+    const fn = document.getElementById('sprayBlobFn'); burst.style.filter = 'url(#sprayBlob)';
+    rafFor(0, 520, k => fn.setAttribute('intercept', (.4 - 7.6 * k * k).toFixed(3)), () => {
+      pre.classList.add('gone'); burst.style.filter = '';
+      pre.querySelectorAll('.hud,.corner,#eyes,#preMsg,#preNoise,#skip').forEach(e => e.style.visibility = '');
+    });
+    burst.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }], { duration: 520, easing: 'ease-in', fill: 'forwards' });
+  }, 420);
+}
+pre.addEventListener('click', () => { if (preRun && sceneReadyDone) (isVideo() && !REDUCED ? cutToFilm() : flood()); });
+
+$('#replay').addEventListener('click', () => REDUCED ? playIntro() : playPre());
+addEventListener('keydown', e => { if ((e.key === 'r' || e.key === 'R') && !e.metaKey && !e.ctrlKey && e.target === document.body) (REDUCED ? playIntro() : playPre()); });
+
+/* ---------- polish: grain, nozzle cursor, parallax, breathing camera ---------- */
+(function grain(){
+  const dpr = Math.min(2, devicePixelRatio || 1), T = Math.round(220 * dpr), c = document.createElement('canvas'); c.width = c.height = T;
+  const g = c.getContext('2d'), img = g.createImageData(T, T);
+  for (let i = 0; i < img.data.length; i += 4){
+    const v = 128 + gauss() * 58; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  const c2 = document.createElement('canvas'); c2.width = c2.height = T; const g2 = c2.getContext('2d');
+  g2.filter = `blur(${.45 * dpr}px)`;                      // round the grains off a touch, no hard pixels
+  for (const dx of [-T, 0, T]) for (const dy of [-T, 0, T]) g2.drawImage(c, dx, dy);   // wrap so the tile stays seamless
+  const el = $('#grain'); el.style.backgroundImage = `url(${c2.toDataURL('image/png')})`; el.style.backgroundSize = `${T / dpr}px`;
+})();
+const cur = $('#cur'), curLab = cur.querySelector('.lab');
+let cx = -100, cy = -100, cxs = -100, cys = -100, px = 0, py = 0, pxs = 0, pys = 0;
+addEventListener('pointermove', e => {
+  if (e.pointerType !== 'mouse') return;
+  cx = e.clientX; cy = e.clientY;
+  px = (e.clientX / innerWidth - .5); py = (e.clientY / innerHeight - .5);
+  const onBtn = e.target === hit || !!e.target.closest('.tag'), onPre = !pre.classList.contains('gone');
+  cur.classList.toggle('btn', onBtn);
+  curLab.textContent = onPre ? (isVideo() ? 'Skip' : 'Skip') : (!introDone && isVideo() && !act2Started) ? 'Skip the film' : spraying ? 'Spraying' : 'Hold to spray';
+}, { passive: true });
+addEventListener('pointerdown', () => cur.classList.add('down'));
+addEventListener('pointerup', () => cur.classList.remove('down'));
+const head2 = $('#head'), stageEl = $('#stage');
+(function polish(){
+  cxs += (cx - cxs) * .28; cys += (cy - cys) * .28;
+  cur.style.transform = `translate(${cxs}px,${cys}px)`;
+  // depth: the photo drifts against the pointer, the headline a little with it (desktop, after the intro)
+  const on = introDone && !MOBILE.matches && !REDUCED ? 1 : 0;
+  pxs += (px * on - pxs) * .06; pys += (py * on - pys) * .06;
+  stageEl.style.translate = `${-pxs * 1.4}% ${-pys * 1.2}%`;
+  head2.style.translate = `${pxs * .5}em ${pys * .35}em`.replace(/em/g, '%');
+  requestAnimationFrame(polish);
+})();
+// once the intro has played, the camera keeps breathing very slowly
+let breath = null;
+function breathe(){
+  if (REDUCED || breath) return;
+  breath = scene.animate([{ scale: 1 }, { scale: 1.025 }], { duration: 9000, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' });
+}
+
+/* ---------- boot ---------- */
+let sceneReadyRes, sceneReadyDone = false; const sceneReadyP = new Promise(r => sceneReadyRes = r);
+if (!REDUCED) playPre(); else pre.classList.add('gone');
+(async () => {
+  try { await Promise.race([Promise.all([document.fonts.load('900 100px "OH Display"'), document.fonts.load('400 20px "OH Text"'), document.fonts.load('800 20px "OH Text"')]), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}
+  fitText(); placeBlob(); placeLogo(); paintSplotches(); layoutTypeDrips(); tickCountdown();
+  try { initGL(); await loadScene(pickScene()); } catch (e) { console.warn(e); }
+  MOBILE.addEventListener('change', async () => {
+    await loadScene(pickScene());
+    if (isVideo()){ vid.pause(); if (vid.duration) vid.currentTime = vid.duration - .05; } else { vid.pause(); }
+  });
+  sceneReadyRes(); sceneReadyDone = true;
+  if (REDUCED) playIntro();
+  requestAnimationFrame(frame);
+})();
+</script>
