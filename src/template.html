@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="lock">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>OHSTA — Dress Code Violation Drop</title>
-<meta name="description" content="OHSTA.Studio limited drop: suits, ripped and reworn. Dropping Friday 23 Oct, 6 PM. 300 pieces, no restock.">
+<meta name="description" content="OHSTA.Studio Drop 010: ten suits, ripped, laced, beaded and sprayed by hand. 300 numbered pieces, Friday 6 PM CET, no restock.">
 <meta name="theme-color" content="#000000">
 <meta property="og:title" content="OHSTA — Dress Code Violation Drop">
 <meta property="og:description" content="Suits, ripped and reworn. 300 pieces, no restock.">
@@ -27,9 +27,9 @@
   --text:"OH Text","Helvetica Neue",Arial,sans-serif;
   color-scheme:dark;
 }
-html,body{height:100%}
-body{margin:0;background:var(--black);color:var(--white);overflow:hidden;font-family:var(--text)}
-#view{position:fixed;inset:0;overflow:hidden;background:var(--black);touch-action:none;container-type:size}
+body{margin:0;background:var(--black);color:var(--white);font-family:var(--text)}
+html.lock,html.lock body{overflow:hidden}
+#view{position:sticky;top:0;width:100%;height:100vh;height:100svh;overflow:hidden;background:var(--black);touch-action:pan-y;container-type:size;z-index:0}
 
 /* ---- photo scene: 16:9 picture covering its box, with a focus point ---- */
 #sceneBox{position:absolute;inset:0;container-type:size;overflow:hidden;--fx:.5;--fy:.5}
@@ -207,7 +207,7 @@ body{margin:0;background:var(--black);color:var(--white);overflow:hidden;font-fa
 #cur.btn .ring{left:-38px;top:-38px;width:76px;height:76px;background:transparent;border-color:#fff;mix-blend-mode:normal}
 #cur.btn .lab{opacity:0}
 #cur.down .ring{left:-5px;top:-5px;width:10px;height:10px;background:#fff}
-@media (pointer:fine){ #cur{display:block} #view,#view *{cursor:none!important} #replay{cursor:none!important} }
+@media (pointer:fine){ #cur{display:block} body,body *{cursor:none!important} }
 #preMsg{position:absolute;left:50%;top:calc(46% + min(15vw,19vmin));translate:-50% 0;margin:0;font:900 max(14px,2.4vmin)/1 var(--display);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;opacity:0}
 #skip{position:absolute;right:3.2vmin;bottom:3vmin;z-index:2;border:0;background:none;color:inherit;font:400 max(11px,1.05vmin)/1 var(--text);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;opacity:.85;padding:.6em 0}
 #skip:hover{opacity:1}
@@ -275,6 +275,7 @@ body{margin:0;background:var(--black);color:var(--white);overflow:hidden;font-fa
     <button id="replay" type="button">↻ Replay intro</button>
   </div>
 </div>
+<!--LANDING-->
 <div id="hint">Hold to spray</div>
 <div id="cur"><i class="ring"></i><span class="lab">Hold to spray</span></div>
 <div id="flash"></div>
@@ -282,7 +283,7 @@ body{margin:0;background:var(--black);color:var(--white);overflow:hidden;font-fa
   <canvas id="preNoise" width="160" height="90"></canvas>
   <i class="corner a"></i><i class="corner b"></i><i class="corner c"></i><i class="corner d"></i>
   <div class="hud tl"><span class="rec">●</span> Rec · Cam 03 · Ext. wall</div>
-  <div class="hud tr" id="preClock">23.10.2026 · 03:59:57</div>
+  <div class="hud tr" id="preClock">03:59:57</div>
   <p id="preCount">000<small>Loading the drop</small></p>
   <svg id="eyes" viewBox="0 0 240 70" aria-hidden="true">
     <defs>
@@ -1068,7 +1069,7 @@ function buildTags(cfg){
     b.innerHTML = `<span class="n">${m.n}</span>${m.label}`;
     b.style.left = (m.lx / cfg.W * 100) + '%'; b.style.top = (m.ly / cfg.H * 100) + '%';
     b.style.translate = m.side === 'r' ? '-100% -50%' : '0 -50%';
-    b.addEventListener('click', () => hit.click());
+    b.addEventListener('click', () => window.goTo ? window.goTo('#pieces') : hit.click());
     b.addEventListener('pointerenter', () => focusMark(i));
     b.addEventListener('pointerleave', () => focusMark(-1));
     box.appendChild(b);
@@ -1117,19 +1118,42 @@ function sprayMarks(delay){
   });
 }
 
-/* ---------- countdown on the button: drop is Fri 23 Oct 2026, 18:00 Berlin (16:00 UTC) ---------- */
-const DROP_AT = Date.UTC(2026, 9, 23, 16, 0, 0);
-function tickCountdown(){
-  const ms = DROP_AT - Date.now(), el = $('#cd');
-  if (ms <= 0){ el.textContent = 'Live now'; $('#reserve .fit').textContent = 'Shop'; fitText(); return; }
-  const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), hh = String(Math.floor(s / 3600) % 24).padStart(2, '0'),
+/* ---------- countdown on the button: the drop is every Friday 18:00 Berlin; doors stay open for a day ---------- */
+function berlinOffsetMin(ms){                       // minutes Berlin is ahead of UTC at that instant (60 or 120)
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Berlin', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+    .formatToParts(new Date(ms)).map(x => [x.type, x.value]));
+  return Math.round((Date.UTC(+p.year, p.month - 1, +p.day, +p.hour, +p.minute) - ms) / 60000);
+}
+function dropState(now = Date.now()){
+  const b = new Date(now + berlinOffsetMin(now) * 60000);                        // Berlin wall clock, read with UTC getters
+  const at = k => { const t = Date.UTC(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate() + k, 18, 0, 0); return t - berlinOffsetMin(t) * 60000; };
+  const back = (b.getUTCDay() - 5 + 7) % 7, lastFri = at(-back);              // this week's Friday 18:00 (may still be ahead)
+  if (now >= lastFri && now < lastFri + 864e5) return { live: true, at: lastFri, ms: 0 };
+  const t = lastFri > now ? lastFri : at(7 - back);
+  return { live: false, at: t, ms: t - now };
+}
+function fmtCD(ms){
+  const s = Math.max(0, Math.floor(ms / 1000)), d = Math.floor(s / 86400), hh = String(Math.floor(s / 3600) % 24).padStart(2, '0'),
         mm = String(Math.floor(s / 60) % 60).padStart(2, '0'), ss = String(s % 60).padStart(2, '0');
-  el.textContent = (d ? d + 'd ' : '') + `${hh}:${mm}:${ss}`;
+  return { d, hh, mm, ss, text: (d ? d + 'd ' : '') + `${hh}:${mm}:${ss}` };
+}
+function setDay(at){                                 // the date in the top-right corner follows the next drop
+  const b = new Date(at + berlinOffsetMin(at) * 60000), dd = String(b.getUTCDate()).padStart(2, '0'), mo = String(b.getUTCMonth() + 1).padStart(2, '0');
+  const sp = document.querySelectorAll('#day .mline>span');
+  if (sp.length === 3 && sp[0].textContent.trim() !== dd){ sp[0].textContent = dd + ' '; sp[2].textContent = mo; }
+  $('#day').setAttribute('aria-label', b.toLocaleDateString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'long' }));
+}
+function tickCountdown(){
+  const st = dropState(), el = $('#cd');
+  setDay(st.at);
+  if (st.live){ el.textContent = 'Live now'; if ($('#reserve .fit').textContent === 'Reserve'){ $('#reserve .fit').textContent = 'Shop'; fitText(); } return; }
+  el.textContent = fmtCD(st.ms).text;
 }
 setInterval(tickCountdown, 1000);
 
 /* ---------- frame loop ---------- */
 function frame(now){
+  if (window.heroPaused){ last = now; requestAnimationFrame(frame); return; }
   const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
   const t = now - t0;
   let cloud = null;
@@ -1166,6 +1190,7 @@ view.addEventListener('pointerdown', e => {
   view.setPointerCapture(e.pointerId);
 });
 addEventListener('pointerup', () => { if (spraying) hiss(false); spraying = false; });
+addEventListener('pointercancel', () => { if (spraying) hiss(false); spraying = false; });
 function sprayTick(dt){
   const dx = cursor.x - lastDab.x, dy = cursor.y - lastDab.y, moved = Math.hypot(dx, dy), k = SC.k;
   vel += (moved / Math.max(dt, 1e-3) - vel) * .25;
@@ -1197,8 +1222,7 @@ hit.addEventListener('pointerleave', () => hovT = 0);
 hit.addEventListener('click', () => {
   splash(22, 1.15); overspray(14, 0, 1.3);
   ['#splotch'].forEach(s => $(s).animate([{ transform: 'scale(1)' }, { transform: 'scale(.9)', offset: .3 }, { transform: 'scale(1.1)', offset: .65 }, { transform: 'scale(1)' }], { duration: 600, easing: 'ease-out' }));
-  const r = $('#reserve .fit'); r.textContent = 'You’re in'; fitText();
-  clearTimeout(hit._t); hit._t = setTimeout(() => { r.textContent = 'Reserve'; fitText(); }, 2200);
+  clearTimeout(hit._t); hit._t = setTimeout(() => window.goTo && window.goTo('#drop'), 420);
 });
 
 /* ---------- preloader: CCTV, two eyes check the street, the can floods the screen ---------- */
@@ -1213,7 +1237,7 @@ let preTimers = [], preRun = false;
 setInterval(() => {                                    // the camera clock ticks over 03:59:57 → 04:00…
   if (pre.classList.contains('gone')) return;
   const s = 57 + Math.floor((performance.now() - (pre._t || 0)) / 1000), mm = 59 + Math.floor(s / 60), h = 3 + Math.floor(mm / 60);
-  $('#preClock').textContent = `23.10.2026 · ${String(h).padStart(2, '0')}:${String(mm % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  $('#preClock').textContent = `${new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })} · ${String(h).padStart(2, '0')}:${String(mm % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }, 250);
 function at(ms, fn){ preTimers.push(setTimeout(fn, ms)); }
 function look(x, dur){ document.querySelectorAll('#eyes .pupil').forEach(p => p.animate([{ transform: getComputedStyle(p).transform === 'none' ? 'translate(0,0)' : getComputedStyle(p).transform }, { transform: `translate(${x}px,0)` }], { duration: dur, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'forwards' })); }
@@ -1316,6 +1340,12 @@ addEventListener('pointermove', e => {
   if (e.pointerType !== 'mouse') return;
   cx = e.clientX; cy = e.clientY;
   px = (e.clientX / innerWidth - .5); py = (e.clientY / innerHeight - .5);
+  if (!view.contains(e.target)){
+    const dc = e.target.closest && e.target.closest('[data-cursor]'), ui = e.target.closest && e.target.closest('a,button,select,input,label');
+    cur.classList.remove('btn'); cur.classList.toggle('lbtn', !!ui && !dc); cur.classList.toggle('field', !!(e.target.closest && e.target.closest('input,select')));
+    curLab.textContent = dc ? dc.dataset.cursor : ''; cur.classList.toggle('big', !!dc); return;
+  }
+  cur.classList.remove('big', 'field', 'lbtn');
   const onBtn = e.target === hit || !!e.target.closest('.tag'), onPre = !pre.classList.contains('gone');
   cur.classList.toggle('btn', onBtn);
   curLab.textContent = onPre ? (isVideo() ? 'Skip' : 'Skip') : (!introDone && isVideo() && !act2Started) ? 'Skip the film' : spraying ? 'Spraying' : 'Hold to spray';
@@ -1356,3 +1386,4 @@ if (!REDUCED) playPre(); else pre.classList.add('gone');
   requestAnimationFrame(frame);
 })();
 </script>
+<!--LANDING-SCRIPTS-->

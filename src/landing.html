@@ -1,0 +1,156 @@
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- a sprayed line: a rough core, a soft overspray halo and loose droplets around it, in the stroke's own colour -->
+    <filter id="sprayInk" filterUnits="userSpaceOnUse" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="b"/>
+      <feComponentTransfer in="b" result="halo"><feFuncA type="linear" slope=".42"/></feComponentTransfer>
+      <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed="11" result="n2"/>
+      <feColorMatrix in="n2" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  14 0 0 0 -8.6" result="dots"/>
+      <feComposite in="b" in2="dots" operator="in" result="sp"/>
+      <feComponentTransfer in="sp" result="specks"><feFuncA type="linear" slope="3.2"/></feComponentTransfer>
+      <feMerge><feMergeNode in="halo"/><feMergeNode in="specks"/><feMergeNode in="rough"/></feMerge>
+    </filter>
+  </defs>
+</svg>
+
+<header id="bar" aria-label="Drop 010">
+  <a class="bar-logo" href="#top" data-go="#top" aria-label="Back to the top">OH<sup>®</sup></a>
+  <p class="bar-mid"><span>Drop 010</span><span class="js-dropday">Friday · 18:00 CET</span></p>
+  <a class="bar-cta" href="#drop" data-go="#drop"><span class="bar-cta-l">Reserve</span><span class="js-cd">00:00:00</span></a>
+</header>
+
+<main id="page">
+
+  <!-- 01 · the rule -->
+  <section id="rule" class="sec light" aria-labelledby="ruleTitle">
+    <svg class="torn" viewBox="0 0 1920 60" preserveAspectRatio="none" aria-hidden="true"><path class="js-torn" d="M0 60V30L1920 30V60Z"/></svg>
+    <div class="row labels">
+      <span class="c1">[ 01 ]</span>
+      <span class="c2">The rule</span>
+      <span class="c3 def"><b>Dress code</b> (n.) — a set of rules about what you are allowed to wear. And who you are allowed to be.</span>
+      <span class="c4">(010)</span>
+    </div>
+    <div class="pinbox" id="statementPin">
+      <h2 class="statement" id="ruleTitle" aria-label="Suits were made to make you fit in. Stand out.">
+        <span class="fill" aria-hidden="true"><span class="fi"><span class="w">Suits</span> <span class="w">were</span> <span class="w">made</span></span></span>
+        <span class="fill" aria-hidden="true"><span class="fi"><span class="w">to</span> <span class="w">make</span> <span class="w">you</span></span></span>
+        <span class="fill last" aria-hidden="true"><span class="fi"><span class="w">fit</span> <span class="w">in.</span></span></span>
+        <svg class="strike js-strike" aria-hidden="true"><path/></svg>
+        <span class="tagword" aria-hidden="true"><span class="tw sprayed">Stand out.</span><i class="drip" style="--x:14%;--l:1.1"></i><i class="drip" style="--x:41%;--l:.6"></i><i class="drip" style="--x:63%;--l:1.5"></i><i class="drip" style="--x:88%;--l:.8"></i></span>
+      </h2>
+    </div>
+    <div class="row rule-body">
+      <p class="c1 kicker">So we break&nbsp;them.</p>
+      <p class="c3 lead">OHSTA buys back the most obedient garment ever made, the suit, and takes it apart by hand. Ripped, laced, beaded, sprayed. Then rebuilt into something your office would send you home for.</p>
+    </div>
+    <ul class="row stats">
+      <li class="c1"><b class="js-count" data-to="300">300</b><span>numbered pieces in Drop 010</span></li>
+      <li class="c3"><b class="js-count" data-to="10">10</b><span>designs, 30 of each</span></li>
+      <li class="c4r"><b class="js-count" data-to="0">0</b><span>restocks. Ever.</span></li>
+    </ul>
+  </section>
+
+  <div class="tapes" aria-hidden="true">
+    <div class="tape t1"><div class="tt"><span>Dress code violation</span><i>●</i><span>Do not cross</span><i>●</i><span>Drop 010</span><i>●</i><span>300 pieces</span><i>●</i><span>No restock</span><i>●</i></div></div>
+    <div class="tape t2"><div class="tt"><span>Suits, ripped &amp; reworn</span><i>●</i><span>Friday 18:00 CET</span><i>●</i><span>Gone in a day</span><i>●</i><span>Online only</span><i>●</i></div></div>
+  </div>
+
+  <!-- 02 · the pieces (horizontal) -->
+  <section id="pieces" class="sec dark" aria-labelledby="piecesTitle">
+    <div class="hwrap">
+      <div class="htrack">
+        <div class="panel intro">
+          <div class="labels-v"><span>[ 02 ]</span><span>The pieces</span><span>[ Suits / Denim ]</span></div>
+          <h2 class="ptitle" id="piecesTitle"><span class="fill"><span class="fi">10 pieces.</span></span><span class="fill"><span class="fi">10 rules</span></span><span class="fill bl"><span class="fi">broken.</span></span></h2>
+          <p class="pnote">Every design breaks one rule of the dress code. Each is made 30 times, numbered and signed. Keep scrolling and watch the rules go.</p>
+          <p class="phint"><span>Scroll</span><i></i><span>→</span></p>
+        </div>
+__CARDS__
+        <div class="panel outro">
+          <p class="o-k">[ That’s all ten ]</p>
+          <p class="o-big"><span class="fill"><span class="fi">Next month</span></span><span class="fill"><span class="fi">they’re gone.</span></span></p>
+          <a class="splotch-btn sb-blue" href="#drop" data-go="#drop" data-cursor="Reserve"><canvas></canvas><span>Reserve yours</span></a>
+        </div>
+      </div>
+      <div class="hhud" aria-hidden="true"><span class="js-pi">01</span><span>/ 10</span><i class="hbar"><b class="js-pbar"></b></i><span class="hlab js-pname">Tagged Blazer</span></div>
+    </div>
+  </section>
+
+  <!-- 03 · how a suit breaks -->
+  <section id="process" class="sec light" aria-labelledby="procTitle">
+    <div class="pwrap">
+      <div class="row labels">
+        <span class="c1">[ 03 ]</span>
+        <span class="c2" id="procTitle">How a suit breaks</span>
+        <span class="c3">Three steps. About 30 hours of handwork per piece.</span>
+        <span class="c4"><span class="js-step">01</span> / 03</span>
+      </div>
+      <div class="bigword" aria-hidden="true">
+        <span class="wd w1 fill"><span class="fi"><span class="ch">F</span><span class="ch">o</span><span class="ch">u</span><span class="ch">n</span><span class="ch">d</span></span></span>
+        <span class="wd w2 fill"><span class="fi">Ripped</span><span class="rip top"><span class="fi2">Ripped</span></span><span class="rip bot"><span class="fi2">Ripped</span></span></span>
+        <span class="wd w3 fill"><span class="fi sprayed">Reworn</span></span>
+      </div>
+      <figure class="oval" aria-hidden="true">
+        <img src="assets/img/detail-found.webp" alt="" class="o1">
+        <img src="assets/img/detail-ripped.webp" alt="" class="o2">
+        <img src="assets/img/detail-reworn.webp" alt="" class="o3">
+        <svg class="ovring" viewBox="0 0 100 124" preserveAspectRatio="none"><ellipse cx="50" cy="62" rx="47" ry="59"/></svg>
+      </figure>
+      <ol class="steps">
+        <li class="s1"><b>01 — Found</b><span>Office leftovers, wedding one-timers, forgotten deadstock. We buy back the suits nobody wanted to wear again.</span></li>
+        <li class="s2"><b>02 — Ripped</b><span>Every suit is taken apart by hand. Seams opened, linings torn out, the rule it was cut for broken on purpose.</span></li>
+        <li class="s3"><b>03 — Reworn</b><span>Rebuilt into one of 300 numbered pieces. Signed, tagged, never repeated. When it’s gone, it’s gone.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 04 · the drop + reserve -->
+  <section id="drop" class="sec blue" aria-labelledby="dropTitle">
+    <div class="row labels">
+      <span class="c1">[ 04 ]</span>
+      <span class="c2">The drop</span>
+      <span class="c3">[ Online only ]</span>
+      <span class="c4">(010)</span>
+    </div>
+    <h2 class="droptitle" id="dropTitle"><span class="fill"><span class="fi">300 pieces.</span></span><span class="fill"><span class="fi">One Friday.</span></span><span class="fill"><span class="fi">No restock.</span></span></h2>
+    <ol class="how">
+      <li><b class="hn">01</b><strong>Reserve now</strong><span>Leave your email and pick a piece. Free, no card, takes ten seconds.</span></li>
+      <li><b class="hn">02</b><strong>Friday, 17:30</strong><span>The reserved list gets the shop link 30 minutes before everyone else.</span></li>
+      <li><b class="hn">03</b><strong>Friday, 18:00</strong><span>Doors open worldwide. When the 300 are gone, they’re gone.</span></li>
+      <svg class="howline js-howline" aria-hidden="true"><path/></svg>
+    </ol>
+    <div class="cta">
+      <div class="cdwrap">
+        <p class="cdlab"><span class="js-cdlab">Doors open in</span><span class="js-dropday2">Friday, 18:00 CET</span></p>
+        <p class="cdbig" aria-live="off"><span class="js-cdd">00</span><small>d</small><span class="js-cdh">00</span><small>h</small><span class="js-cdm">00</span><small>m</small><span class="js-cds">00</span><small>s</small></p>
+      </div>
+      <form id="reserveForm" class="rform" novalidate>
+        <label class="fld fld-mail"><span>Email</span><input type="email" name="email" placeholder="you@example.com" autocomplete="email" required></label>
+        <label class="fld"><span>Piece</span>
+          <select name="piece">
+            <option value="any">Any piece — surprise me</option>
+__OPTIONS__
+          </select>
+        </label>
+        <label class="fld fld-size"><span>Size</span>
+          <select name="size"><option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option></select>
+        </label>
+        <button type="submit" class="splotch-btn sb-white" data-cursor="Reserve"><canvas></canvas><span>Reserve</span></button>
+        <p class="fine js-fine">No spam. One email per drop. Reserving is free and doesn’t oblige you to buy.</p>
+      </form>
+    </div>
+  </section>
+
+  <footer id="foot" class="sec dark">
+    <div class="row fcols">
+      <p class="c1">OHSTA.Studio<br>Limited drops</p>
+      <p class="c2">One collection a month,<br>gone in a day</p>
+      <p class="c3"><a href="#" data-cursor="Soon">Instagram</a><br><a href="#" data-cursor="Soon">TikTok</a></p>
+      <p class="c4"><a href="#top" data-go="#top">Back to the wall ↑</a></p>
+    </div>
+    <div class="wm"><p class="wordmark fill"><span class="fi">OHSTA</span></p><canvas class="wmdrips"></canvas></div>
+    <div class="row fbot"><span class="c1">© 2026 OHSTA.Studio</span><span class="c3">Dress code violation since Drop 001</span><span class="c4">Next drop: <span class="js-dropday3">Friday 18:00 CET</span></span></div>
+  </footer>
+</main>
