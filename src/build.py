@@ -7,11 +7,21 @@ def uri(path, fmt=None, q=88):
         data=open(path,'rb').read(); m='image/jpeg' if path.endswith('.jpg') else 'image/png'
     return 'data:%s;base64,%s'%(m,base64.b64encode(data).decode())
 s=open('template.html').read()
-rep={'__GUY__':uri('guy.png','webp'),'__DRIP__':uri('drip.png'),'__GLOW__':uri('glow.png'),'__ELL__':uri('blob.png'),
-'__RING__':uri('ring.png'),'__LSPRAY__':uri('logo-spray.png'),'__LSPRAYTOP__':uri('logo-spray-top.png'),
-'__CLEAN__':uri('build/clean.jpg'),'__PAINTED__':uri('photo.png','webp',92),'__MAP__':uri('build/map.png'),
+# hero images ship as their own files (cached, loaded per device) instead of base64 inside the page
+import os, hashlib as _h
+os.makedirs('../assets/hero', exist_ok=True)
+def asset(src, name, fmt=None, q=88, lossless=False):
+    im = Image.open(src)
+    out = f'../assets/hero/{name}'
+    if fmt == 'webp': im.save(out, 'WEBP', quality=q, method=6, lossless=lossless)
+    elif fmt == 'jpg': im.convert('RGB').save(out, 'JPEG', quality=q, optimize=True, progressive=True)
+    else: im.save(out, 'PNG', optimize=True)
+    return f'assets/hero/{name}?v=' + _h.md5(open(out, 'rb').read()).hexdigest()[:8]
+rep={'__RING__':asset('ring.png','ring.png'),
+'__CLEAN__':asset('build/clean.jpg','clean.jpg','jpg',86),'__PAINTED__':asset('photo.png','painted.webp','webp',90),'__MAP__':asset('build/map.png','map.webp','webp',lossless=True),'__GUY__':asset('guy.png','guy.webp','webp'),
 '__STROKES__':open('build/strokes.json').read(),'__MSTROKES__':open('mob/strokes.json').read(),
-'__MCLEAN__':uri('mob/clean.jpg'),'__MPAINTED__':uri('mob/photo.png','webp',90),'__MMAP__':uri('mob/map.png'),'__MGUY__':uri('mob/guy.png','webp'),'__WALLMASK__':uri('wallmask.png'),'__VOUT__':open('outline/vid.json').read(),'__MOUT__':open('outline/mob.json').read(),
+'__MCLEAN__':asset('mob/clean.jpg','m-clean.jpg','jpg',86),'__MPAINTED__':asset('mob/photo.png','m-painted.webp','webp',90),'__MMAP__':asset('mob/map.png','m-map.webp','webp',lossless=True),'__MGUY__':asset('mob/guy.png','m-guy.webp','webp'),
+'__WALLMASK__':uri('wallmask.png'),'__VOUT__':open('outline/vid.json').read(),'__MOUT__':open('outline/mob.json').read(),
 '__F_MON__':'data:font/woff2;base64,'+base64.b64encode(open('../fonts/mon-black.woff2','rb').read()).decode(),
 '__F_BOOK__':'data:font/woff2;base64,'+base64.b64encode(open('../fonts/nm-book.woff2','rb').read()).decode(),
 '__F_BOLD__':'data:font/woff2;base64,'+base64.b64encode(open('../fonts/nm-bold.woff2','rb').read()).decode()}

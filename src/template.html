@@ -188,6 +188,11 @@ html.lock,html.lock body{overflow:hidden}
 /* ---- preloader: a CCTV feed at night; two eyes check the street, then the can floods the screen ---- */
 #pre{position:fixed;inset:0;z-index:30;background:#030305;color:#e9ecff;overflow:hidden;font-family:var(--text);cursor:pointer}
 #pre.gone{display:none}
+#preFeed{position:absolute;left:4vw;right:4vw;top:50%;aspect-ratio:1272/720;translate:0 -58%;overflow:hidden;opacity:0;background:#000;
+  box-shadow:0 0 0 1px rgba(233,236,255,.25)}
+#preFeed.on{opacity:1}
+#preFeed #snaps{display:block}
+#preFeed::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 50%,transparent 50%,rgba(0,0,0,.5));pointer-events:none}
 #preNoise{position:absolute;inset:0;width:100%;height:100%;opacity:.13;image-rendering:pixelated}
 #pre::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px);pointer-events:none}
 .hud{position:absolute;font:400 max(11px,1.05vmin)/1.3 var(--text);letter-spacing:.08em;text-transform:uppercase;opacity:.85}
@@ -296,6 +301,7 @@ html.lock,html.lock body{overflow:hidden}
   <i class="corner a"></i><i class="corner b"></i><i class="corner c"></i><i class="corner d"></i>
   <div class="hud tl"><span class="rec">●</span> Rec · Cam 03 · Ext. wall</div>
   <div class="hud tr" id="preClock">03:59:57</div>
+  <div id="preFeed"></div>
   <p id="preCount">000<small>Loading the drop</small></p>
   <svg id="eyes" viewBox="0 0 240 70" aria-hidden="true">
     <defs>
@@ -436,8 +442,9 @@ async function loadScene(cfg){
   scene.style.transformOrigin = cfg.focus;
   view.classList.toggle('video-mode', cfg === SCENES.vid);
   brushSetup(cfg); buildTags(cfg);
-  $('#guy').src = cfg.guy;
   paint.clearRect(0, 0, W, H); drips = []; parts = [];
+  if (cfg === SCENES.vid){ sceneReady = true; return; }            // the captures are the picture; no photo layers needed
+  $('#guy').src = cfg.guy;
   const [c, p, m] = await Promise.all([loadImg(cfg.clean), loadImg(cfg.painted), loadImg(cfg.map)]);
   if (SC !== cfg) return;
   if (!gl){ glc.getContext('2d').drawImage(p, 0, 0); return; }
@@ -825,10 +832,11 @@ function playIntro(){
     stencil.classList.remove('done');
     stencil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: 200, easing: 'ease-out', ...o });
     // ACT 1 (phones) — the can writes OHSTA across the photo along the letter strokes
-    brushReset(); brush.on = true; drawMarks();
+    if (fromFeed){ brush.on = false; brushFill(); } else { brushReset(); brush.on = true; }
+    drawMarks();
     scene.animate([{ transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 2600, easing: EASE, ...o });
     scene.animate([{ filter: 'brightness(.55) saturate(.7)' }, { filter: 'brightness(1) saturate(1)' }], { duration: 1200, easing: 'ease-out', ...o });
-    act2(1350);
+    act2(fromFeed ? 380 : 1350);
   }
 }
 // hold the type, button and callouts back until their act starts
@@ -1316,6 +1324,8 @@ function playPre(){
   pre.classList.remove('gone'); pre.style.background = '#030305'; pre.style.opacity = ''; pre._t = performance.now();
   pre.getAnimations({ subtree: true }).forEach(a => a.cancel());
   pre.querySelectorAll('.hud,.corner,#eyes,#preMsg,#preNoise,#skip,#preCount').forEach(e => e.style.visibility = '');
+  feedRun = false; fromFeed = false; $('#preFeed').classList.remove('on');
+  if (!MOBILE.matches && $('#snaps').parentElement.id === 'preFeed') $('#vid').after($('#snaps'));
   document.querySelectorAll('#eyes .lid').forEach(l => l._sy = 0);
   const burst = $('#burst'); burst.style.setProperty('--sr', '0%'); burst.style.filter = ''; burst.style.opacity = 1;
   lids(0, 1); look(0, 1); $('#preMsg').style.opacity = 0;
@@ -1323,12 +1333,12 @@ function playPre(){
   at(230, () => look(-24, 180));                       // check left…
   at(430, () => look(24, 200));                        // …check right…
   at(650, () => look(0, 150));
-  const t0p = performance.now(), cnt = $('#preCount'), need = MOBILE.matches ? Promise.resolve() : loadFilm();
+  const t0p = performance.now(), cnt = $('#preCount'), need = loadFilm();
   let ready = false; Promise.all([need, sceneReadyP]).then(() => ready = true);
   pre._clear = 0;
   (function tick(){
     if (!preRun) return;
-    const tf = Math.min(1, (performance.now() - t0p) / 820), lf = MOBILE.matches ? 1 : filmLoad;
+    const tf = Math.min(1, (performance.now() - t0p) / 820), lf = filmLoad;
     const v = Math.floor(100 * Math.min(tf, ready ? 1 : Math.min(.99, lf)));
     cnt.firstChild.nodeValue = String(v).padStart(3, '0');
     if (v >= 100 && !pre._clear){ pre._clear = 1; coastClear(); return; }
@@ -1338,7 +1348,7 @@ function playPre(){
 function coastClear(){
   lids(.55, 160);
   $('#preMsg').animate([{ opacity: 0, letterSpacing: '.3em' }, { opacity: 1, letterSpacing: '.04em' }], { duration: 320, easing: EASE, fill: 'forwards' });
-  at(260, () => isVideo() && !REDUCED ? cutToFilm() : flood());
+  at(260, () => REDUCED ? flood() : isVideo() ? cutToFilm() : monitorFilm());
 }
 // desktop: the feed cuts to black and the film starts as he bursts past the lens
 function markSeen(){ try { localStorage.setItem('ohsta-intro-seen', Date.now()); } catch (e) {} }
@@ -1349,8 +1359,25 @@ function cutToFilm(){
   $('#flash').animate([{ opacity: 0 }, { opacity: .95, offset: .25 }, { opacity: 0 }], { duration: 420, easing: 'ease-out' });
   setTimeout(() => { pre.classList.add('gone'); pre.getAnimations({ subtree: true }).forEach(a => a.cancel()); playIntro(); }, 100);
 }
-function flood(){
-  markSeen();
+let feedRun = false, fromFeed = false;
+function monitorFilm(){
+  preTimers.forEach(id => { clearTimeout(id); cancelAnimationFrame(id); }); preTimers = []; preRun = false;
+  const feed = $('#preFeed'), box = $('#snaps'); feed.appendChild(box);
+  ['#eyes', '#preMsg', '#preCount'].forEach(q => $(q).animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' }));
+  feed.classList.add('on'); feedRun = true;
+  const clock = $('#preClock'), R = mulberry(23), base = new Date(); base.setHours(3, 59, 59, 0); let sec = 0, i = 0;
+  (function step(){
+    if (!feedRun) return;
+    showSnap(i); sec += SNAPS[i][2];
+    const t = new Date(base.getTime() + sec * 1000);
+    clock.textContent = t.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' · ' + [t.getHours(), t.getMinutes(), t.getSeconds()].map(v => String(v).padStart(2, '0')).join(':');
+    box.style.transform = `translate(${((R() - .5) * 6).toFixed(1)}px,${((R() - .5) * 4).toFixed(1)}px) scale(${(1.015 + R() * .012).toFixed(3)})`;
+    if (i < SNAPS.length - 1){ filmTimer = setTimeout(step, SNAPS[i][1]); i++; }
+    else filmTimer = setTimeout(() => { feedRun = false; flood(true); }, 520);   // hold on the finished tag, then cut
+  })();
+}
+function flood(afterFeed){
+  markSeen(); fromFeed = !!afterFeed;
   preTimers.forEach(id => { clearTimeout(id); cancelAnimationFrame(id); }); preTimers = []; preRun = false;
   const burst = $('#burst');
   renderBase(BURST, burst); drawSplotch(BURST, burst, Infinity);
@@ -1359,17 +1386,18 @@ function flood(){
   setTimeout(() => {
     // the scene starts underneath while the paint dissolves off the screen
     pre.style.background = 'transparent';
-    pre.querySelectorAll('.hud,.corner,#eyes,#preMsg,#preNoise,#skip').forEach(e => e.style.visibility = 'hidden');
+    pre.querySelectorAll('.hud,.corner,#eyes,#preMsg,#preNoise,#skip,#preFeed').forEach(e => e.style.visibility = 'hidden');
+    $('#preFeed').classList.remove('on'); showSnap(-1);       // the visible capture would otherwise ignore its hidden parent
     playIntro();
     const fn = document.getElementById('sprayBlobFn'); burst.style.filter = 'url(#sprayBlob)';
     rafFor(0, 520, k => fn.setAttribute('intercept', (.4 - 7.6 * k * k).toFixed(3)), () => {
       pre.classList.add('gone'); burst.style.filter = '';
-      pre.querySelectorAll('.hud,.corner,#eyes,#preMsg,#preNoise,#skip').forEach(e => e.style.visibility = '');
+      pre.querySelectorAll('.hud,.corner,#eyes,#preMsg,#preNoise,#skip,#preFeed').forEach(e => e.style.visibility = '');
     });
     burst.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }], { duration: 520, easing: 'ease-in', fill: 'forwards' });
   }, 420);
 }
-pre.addEventListener('click', () => { if (preRun && sceneReadyDone) (isVideo() && !REDUCED ? cutToFilm() : flood()); });
+pre.addEventListener('click', () => { if (feedRun){ feedRun = false; clearTimeout(filmTimer); flood(true); return; } if (preRun && sceneReadyDone) (isVideo() && !REDUCED ? cutToFilm() : flood()); });
 
 $('#replay').addEventListener('click', () => REDUCED ? playIntro() : playPre());
 addEventListener('keydown', e => { if ((e.key === 'r' || e.key === 'R') && !e.metaKey && !e.ctrlKey && e.target === document.body) (REDUCED ? playIntro() : playPre()); });
@@ -1446,6 +1474,7 @@ if (REDUCED) pre.classList.add('gone'); else if (seenRecently) quickWall(); else
   try { initGL(); await loadScene(pickScene()); } catch (e) { console.warn(e); }
   MOBILE.addEventListener('change', async () => {
     await loadScene(pickScene());
+    if (!MOBILE.matches && $('#snaps').parentElement.id === 'preFeed') $('#vid').after($('#snaps'));
     if (isVideo()) lastSnap(); else stopFilm();
   });
   sceneReadyRes(); sceneReadyDone = true;
