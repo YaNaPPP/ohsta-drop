@@ -77,6 +77,7 @@
 .lead{margin:0;font:400 calc(38 * var(--u))/1.12 var(--text);letter-spacing:-.025em;max-width:calc(760 * var(--u))}
 .stats{list-style:none;margin:calc(150 * var(--u)) 0 0;padding:0}
 .stats li{display:flex;flex-direction:column;gap:calc(14 * var(--u))}
+.stats .c4r{grid-column:5 / 7;grid-row:1;justify-self:end;align-items:flex-end;padding-right:calc(50 * var(--u))}
 .stats b{font:900 calc(200 * var(--u))/.78 var(--display);letter-spacing:-.06em;font-variant-numeric:tabular-nums}
 .stats li:last-child b{color:var(--blue)}
 .stats span{font:400 max(12px, calc(18 * var(--u)))/1.28 var(--text)}
@@ -88,7 +89,8 @@
   .lead{font-size:calc(19 * var(--u));grid-column:2 / 4!important}
   .stats{margin-top:calc(60 * var(--u));row-gap:calc(26 * var(--u))}
   .stats li:nth-child(2){grid-column:3;grid-row:1}
-  .stats b{font-size:calc(80 * var(--u))}
+  .stats .c4r{grid-column:2 / 4;grid-row:2;justify-self:start;align-items:flex-start;padding-right:0}
+  .stats b{font-size:calc(62 * var(--u))}
   .stats span{font-size:calc(12.5 * var(--u))}
 }
 
