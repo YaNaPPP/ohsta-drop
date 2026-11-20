@@ -125,6 +125,9 @@ html.lock,html.lock body{overflow:hidden}
 .foot{--fs:18;line-height:1.28}
 .foot .l2{display:block;margin-top:-.2244em;margin-left:.0556em}
 #fScroll{--x:50;--y:992}
+#ff{--x:357;--y:56;--fs:16;font-family:var(--text);letter-spacing:.12em;opacity:0;transition:opacity .25s}
+#ff.on{opacity:.85;animation:ffb 1s steps(2) infinite}
+@keyframes ffb{50%{opacity:.35}}
 #fDress{--x:357;--y:993}
 #fNo{--x:926;--y:993}
 #fDrop{--x:1704;--y:989;--w:166;width:9.2222em;white-space:normal}
@@ -260,6 +263,7 @@ html.lock,html.lock body{overflow:hidden}
     <p id="date" class="blk aC aM"><span class="mline"><span class="jl sprayed">Dropping Friday / 6 PM,</span></span><span class="mline"><span class="ll sprayed">Shipping Worldwide</span></span></p>
     <p id="day" class="blk aR aT" aria-label="23 October"><span class="mline"><span style="position:relative;left:-.0769em">23 </span></span><span class="mline"><span>  / </span></span><span class="mline"><span>10</span></span></p>
 
+    <p id="ff" class="blk aL aT" aria-hidden="true">FFWD <span>3×</span></p>
     <p id="fScroll" class="blk foot aL aB fade"><span style="display:block">Scroll</span><span style="display:block">down ↓</span></p>
     <p id="fDress" class="blk foot aC aB fade"><span class="fit" data-em="11.3333">Dress Code Violation Drop</span><span class="l2"><span class="fit" data-em="10">Suits, Ripped &amp; Reworn</span></span></p>
     <p id="fNo" class="blk foot aC aB fade"><span class="fit" data-em="4.6667">No restock</span><span class="l2"><span class="fit" data-em="7">Only one chance</span></span></p>
@@ -307,19 +311,27 @@ const SCENES = {
   desk: { W: 1920, H: 1080, clean: "__CLEAN__", painted: "__PAINTED__", map: "__MAP__", guy: "__GUY__",
           nozzle: { x: 1113, y: 360 }, strokes: __STROKES__, k: 1, tagFs: 17 / 1920, focus: '80% 42%',
           outline: __VOUT__,
-          marks: [{ n: '01', label: 'Jacket — reworn', lx: 1556, ly: 392, side: 'l', parts: ['jacket'] },
-                  { n: '02', label: 'Trousers — ripped', lx: 1566, ly: 800, side: 'l', parts: ['trousers', 'rip'] }] },
+          marks: [{ n: '01', label: 'Jacket — reworn', lx: 1556, ly: 392, side: 'l', parts: [] },
+                  { n: '02', label: 'Trousers — ripped', lx: 1566, ly: 800, side: 'l', parts: [] }] },
   mob:  { W: 1000, H: 1849, clean: "__MCLEAN__", painted: "__MPAINTED__", map: "__MMAP__", guy: "__MGUY__",
           nozzle: { x: 594, y: 556 }, strokes: __MSTROKES__, k: .6, tagFs: 25 / 1000, focus: '80% 33%',
           outline: __MOUT__,
-          marks: [{ n: '01', label: 'Jacket — reworn', lx: 736, ly: 622, side: 'r', parts: ['jacket'] },
-                  { n: '02', label: 'Trousers — ripped', lx: 758, ly: 770, side: 'r', parts: ['trousers', 'rip'] }] }
+          marks: [{ n: '01', label: 'Jacket — reworn', lx: 736, ly: 622, side: 'r', parts: [] },
+                  { n: '02', label: 'Trousers — ripped', lx: 758, ly: 770, side: 'r', parts: [] }] }
 };
 /* desktop plays the filmed run-in: same frame size as the desktop photo, marks placed on the guy's final position */
 SCENES.vid = { ...SCENES.desk, focus: '70% 46%' };
 const MOBILE = matchMedia('(max-aspect-ratio: 4/5)');
 const vid = document.getElementById('vid');
-const VIDEO_START = .2, VIDEO_RATE = 1.1, TAG_DONE = 8.5;     // seconds in the clip: start just before he bursts in; tag finished
+const VIDEO_START = .2, TAG_DONE = 8.6, ACT2_AT = 5.3;      // seconds in the clip: start just before he bursts in; tag finished; type starts mid-tag
+// CCTV fast-forward: the burst past the lens plays in real time, the walk to the wall and the tag run sped up,
+// the last beat (he steps back from the tag) is real time again. ~10 s of film plays in ~4 s.
+const VIDEO_RATES = [[0, 1], [1.0, 3], [3.3, 2.2], [8.6, 1]];
+const rateAt = t => { let r = 1; for (const [a, v] of VIDEO_RATES) if (t >= a) r = v; return r; };
+const wallTime = (a, b) => VIDEO_RATES.reduce((sum, [t0, r], i) => {
+  const t1 = i + 1 < VIDEO_RATES.length ? VIDEO_RATES[i + 1][0] : 1e9, lo = Math.max(a, t0), hi = Math.min(b, t1);
+  return sum + (hi > lo ? (hi - lo) / r : 0); }, 0);
+let filmRAF = 0;
 const isVideo = () => SC === SCENES.vid;
 const pickScene = () => MOBILE.matches ? SCENES.mob : SCENES.vid;
 let SC = SCENES.desk, W = 1920, H = 1080, NOZZLE = SC.nozzle;
@@ -792,15 +804,26 @@ function playIntro(){
   if (isVideo()){
     // ACT 1 (desktop) — the filmed run-in: he bursts past the lens and writes the tag; only the frame of the page is on screen
     brush.on = false; brushFill(); drawMarks();
-    vid.pause(); vid.playbackRate = VIDEO_RATE; vid.currentTime = VIDEO_START;
+    vid.pause(); vid.playbackRate = rateAt(VIDEO_START); vid.currentTime = VIDEO_START;
     const p = vid.play(); if (p && p.catch) p.catch(() => {});
+    // the frame of the page (logo, date, the drop facts) is readable while he is still running in
     ['#logo', '#tagline', '#day', ...document.querySelectorAll('.foot')].forEach((q, i) => {
       const el = typeof q === 'string' ? $(q) : q;
-      el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 700, delay: 1400 + i * 60, easing: 'ease-out', ...o });
+      el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: 250 + i * 50, easing: 'ease-out', ...o });
     });
     stencil.classList.remove('done');
-    stencil.animate([{ opacity: 0, letterSpacing: '-.02em' }, { opacity: 1, letterSpacing: '-.05em' }], { duration: 1400, delay: 1700, easing: EASE, ...o });
-    act2Timer = setTimeout(() => act2(performance.now() - t0), (TAG_DONE - VIDEO_START) / VIDEO_RATE * 1000);
+    stencil.animate([{ opacity: 0, letterSpacing: '-.02em' }, { opacity: 1, letterSpacing: '-.05em' }], { duration: 1000, delay: 500, easing: EASE, ...o });
+    // follow the clip: switch speeds at the cuts, start the type while he is still tagging
+    act2Timer = setTimeout(() => act2(performance.now() - t0), wallTime(VIDEO_START, ACT2_AT) * 1000 + 800);
+    const ff = $('#ff'), ffN = ff.querySelector('span');
+    cancelAnimationFrame(filmRAF);
+    (function watch(){
+      const t = vid.currentTime, r = rateAt(t);
+      if (Math.abs(vid.playbackRate - r) > .01) vid.playbackRate = r;
+      ff.classList.toggle('on', r > 1.05 && !act2Started); if (r > 1.05) ffN.textContent = (r % 1 ? r.toFixed(1) : r) + '×';
+      if (t >= ACT2_AT && !act2Started){ clearTimeout(act2Timer); act2(performance.now() - t0); }
+      if (!vid.ended && t < vid.duration - .1) filmRAF = requestAnimationFrame(watch); else ff.classList.remove('on');
+    })();
   } else {
     stencil.classList.remove('done');
     stencil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: 200, easing: 'ease-out', ...o });
@@ -860,6 +883,7 @@ function act2(at){
 // a click during the film skips to the finished tag
 function skipFilm(){
   if (!isVideo() || act2Started || REDUCED) return;
+  cancelAnimationFrame(filmRAF); $('#ff').classList.remove('on');
   vid.pause(); if (vid.duration) vid.currentTime = vid.duration - .05;
   clearTimeout(act2Timer); act2(performance.now() - t0);
 }
@@ -1112,6 +1136,7 @@ function sprayMarks(delay){
       });
       t += dur + 60;
     });
+    t += i ? 260 : 0;
     const tag = document.querySelectorAll('#tags .tag')[i];
     tag.animate([{ opacity: 0, clipPath: 'inset(0 100% 0 0)', transform: 'scale(.9)' }, { opacity: 1, clipPath: 'inset(0 0% 0 0)', transform: 'none' }],
       { duration: 380, delay: t - 140, easing: 'cubic-bezier(.6,0,.3,1)', fill: 'both' });
@@ -1243,7 +1268,7 @@ function at(ms, fn){ preTimers.push(setTimeout(fn, ms)); }
 function look(x, dur){ document.querySelectorAll('#eyes .pupil').forEach(p => p.animate([{ transform: getComputedStyle(p).transform === 'none' ? 'translate(0,0)' : getComputedStyle(p).transform }, { transform: `translate(${x}px,0)` }], { duration: dur, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'forwards' })); }
 function lids(sy, dur){ document.querySelectorAll('#eyes .lid').forEach(l => l.animate([{ transform: `scaleY(${l._sy ?? 0})` }, { transform: `scaleY(${sy})` }], { duration: dur, easing: 'ease-out', fill: 'forwards' }) && (l._sy = sy)); }
 /* the loader really loads: the film is fetched whole (so it never stalls). The counter can't run faster than
-   1.7 s and can't pass 99 until the film and the scene are ready. */
+   0.8 s and can't pass 99 until the film and the scene are ready. */
 let filmLoad = 0, filmReady = null;
 function loadFilm(){
   if (filmReady) return filmReady;
@@ -1268,17 +1293,16 @@ function playPre(){
   document.querySelectorAll('#eyes .lid').forEach(l => l._sy = 0);
   const burst = $('#burst'); burst.style.setProperty('--sr', '0%'); burst.style.filter = ''; burst.style.opacity = 1;
   lids(0, 1); look(0, 1); $('#preMsg').style.opacity = 0;
-  at(150, () => lids(1, 220));                         // eyes open in the dark
-  at(480, () => look(-24, 260));                       // check left…
-  at(860, () => look(24, 300));                        // …check right…
-  at(1240, () => look(0, 220));
-  at(1360, () => { lids(.1, 80); at(80, () => lids(1, 120)); });     // blink
+  at(60, () => lids(1, 160));                          // eyes open in the dark
+  at(230, () => look(-24, 180));                       // check left…
+  at(430, () => look(24, 200));                        // …check right…
+  at(650, () => look(0, 150));
   const t0p = performance.now(), cnt = $('#preCount'), need = MOBILE.matches ? Promise.resolve() : loadFilm();
   let ready = false; Promise.all([need, sceneReadyP]).then(() => ready = true);
   pre._clear = 0;
   (function tick(){
     if (!preRun) return;
-    const tf = Math.min(1, (performance.now() - t0p) / 1700), lf = MOBILE.matches ? 1 : filmLoad;
+    const tf = Math.min(1, (performance.now() - t0p) / 820), lf = MOBILE.matches ? 1 : filmLoad;
     const v = Math.floor(100 * Math.min(tf, ready ? 1 : Math.min(.99, lf)));
     cnt.firstChild.nodeValue = String(v).padStart(3, '0');
     if (v >= 100 && !pre._clear){ pre._clear = 1; coastClear(); return; }
@@ -1288,16 +1312,19 @@ function playPre(){
 function coastClear(){
   lids(.55, 160);
   $('#preMsg').animate([{ opacity: 0, letterSpacing: '.3em' }, { opacity: 1, letterSpacing: '.04em' }], { duration: 320, easing: EASE, fill: 'forwards' });
-  at(520, () => isVideo() && !REDUCED ? cutToFilm() : flood());
+  at(260, () => isVideo() && !REDUCED ? cutToFilm() : flood());
 }
 // desktop: the feed cuts to black and the film starts as he bursts past the lens
+function markSeen(){ try { localStorage.setItem('ohsta-intro-seen', Date.now()); } catch (e) {} }
 function cutToFilm(){
+  markSeen();
   preTimers.forEach(id => { clearTimeout(id); cancelAnimationFrame(id); }); preTimers = []; preRun = false;
   // a camera flash: the feed burns out to white and the film is underneath when it clears
   $('#flash').animate([{ opacity: 0 }, { opacity: .95, offset: .25 }, { opacity: 0 }], { duration: 420, easing: 'ease-out' });
   setTimeout(() => { pre.classList.add('gone'); pre.getAnimations({ subtree: true }).forEach(a => a.cancel()); playIntro(); }, 100);
 }
 function flood(){
+  markSeen();
   preTimers.forEach(id => { clearTimeout(id); cancelAnimationFrame(id); }); preTimers = []; preRun = false;
   const burst = $('#burst');
   renderBase(BURST, burst); drawSplotch(BURST, burst, Infinity);
@@ -1372,7 +1399,24 @@ function breathe(){
 
 /* ---------- boot ---------- */
 let sceneReadyRes, sceneReadyDone = false; const sceneReadyP = new Promise(r => sceneReadyRes = r);
-if (!REDUCED) playPre(); else pre.classList.add('gone');
+const seenRecently = (() => { if (/[?&]intro\b/.test(location.search)) return false; try { return Date.now() - (+localStorage.getItem('ohsta-intro-seen') || 0) < 7 * 864e5; } catch (e) { return false; } })();
+function quickWall(){
+  // the film's last frame is the wall: wait until it can be shown (the CCTV screen covers the wait)
+  const meta = () => new Promise(res => { if (vid.readyState >= 1 && vid.duration) return res(); vid.addEventListener('loadedmetadata', res, { once: true }); setTimeout(res, 3000); });
+  const ready = Promise.race([sceneReadyP.then(() => isVideo() ? loadFilm().then(meta) : null), new Promise(r => setTimeout(r, 6000))]);   // the scene decides film or photo
+  ready.then(() => new Promise(res => {
+    if (!isVideo() || !vid.duration) return res();
+    vid.pause(); vid.addEventListener('seeked', res, { once: true }); vid.currentTime = vid.duration - .05; setTimeout(res, 1200);
+  })).then(() => {
+    resetIntro(); hideAct2(); t0 = performance.now();
+    brush.on = false; brushFill(); drawMarks();
+    [$('#logo'), $('#tagline'), $('#day'), ...document.querySelectorAll('.foot')].forEach(el => el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease-out', fill: 'both' }));
+    stencil.classList.remove('done'); stencil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: 'both' });
+    pre.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, fill: 'forwards' }).onfinish = () => pre.classList.add('gone');
+    act2(120);
+  });
+}
+if (REDUCED) pre.classList.add('gone'); else if (seenRecently) quickWall(); else playPre();
 (async () => {
   try { await Promise.race([Promise.all([document.fonts.load('900 100px "OH Display"'), document.fonts.load('400 20px "OH Text"'), document.fonts.load('800 20px "OH Text"')]), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}
   fitText(); placeBlob(); placeLogo(); paintSplotches(); layoutTypeDrips(); tickCountdown();

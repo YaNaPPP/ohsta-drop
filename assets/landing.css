@@ -181,14 +181,14 @@
 .pwrap>.labels{position:absolute;left:0;right:0;top:calc(110 * var(--u))}
 .bigword{position:absolute;left:calc(50 * var(--u));right:calc(50 * var(--u));top:26%;height:1px}
 .wd{position:absolute;left:0;top:0;width:100%;font-family:var(--display);font-weight:900;text-transform:uppercase;letter-spacing:-.05em;line-height:.8}
-.w1 .fi{overflow:hidden;padding:.04em 0 .06em;margin:-.04em 0 -.06em}
-.w1 .ch{display:inline-block}
-.w2>.fi{visibility:hidden}
+#process .pw1 .fi{overflow:hidden;padding:.04em 0 .06em;margin:-.04em 0 -.06em}
+#process .pw1 .ch{display:inline-block}
+#process .pw2>.fi{visibility:hidden}
 .rip{position:absolute;left:0;top:0;width:100%;opacity:0}
 .rip .fi2{display:inline-block}
 .rip.top{transform-origin:20% 60%}
 .rip.bot{transform-origin:80% 40%}
-.w3 .fi{--sx:-12%}
+#process .pw3 .fi{--sx:-12%}
 .scraps{position:absolute;right:calc(150 * var(--u));top:42%;width:calc(400 * var(--u));height:calc(500 * var(--u))}
 .scrap{position:absolute;inset:0;visibility:hidden}
 .half{position:absolute;inset:0;filter:drop-shadow(0 calc(14 * var(--u)) calc(18 * var(--u)) rgba(0,0,0,.28))}

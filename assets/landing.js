@@ -317,7 +317,7 @@ function buildScraps(){
 }
 function buildProcess(){
   tearPaths(); buildScraps();
-  gsap.set('.w1 .ch', { yPercent: 105 });
+  gsap.set('#process .pw1 .ch', { yPercent: 105 });
   const step = $('.js-step');
   const tl = gsap.timeline({ scrollTrigger: { trigger: '#process', start: 'top top', end: () => '+=' + innerHeight * (isMob() ? 2.4 : 2.8),
     pin: '.pwrap', scrub: .7, anticipatePin: 1, invalidateOnRefresh: true,
@@ -332,19 +332,19 @@ function buildProcess(){
       .to(sel + ' .half.a', { xPercent: -26, yPercent: 60, rotate: -24, autoAlpha: 0, duration: .26, ease: 'power2.in' }, at + '+=.08')
       .to(sel + ' .half.b', { xPercent: 30, yPercent: 70, rotate: 28, autoAlpha: 0, duration: .26, ease: 'power2.in' }, at + '+=.08');
   };
-  tl.fromTo('.w1 .ch', { yPercent: 105 }, { yPercent: 0, stagger: .05, duration: .3, ease: 'power3.out' }, 0);
+  tl.fromTo('#process .pw1 .ch', { yPercent: 105 }, { yPercent: 0, stagger: .05, duration: .3, ease: 'power3.out' }, 0);
   slap('.scrap.s1', 0); show('.steps .s1', .1);
   tl.to({}, { duration: .35 })
-    .to('.w1 .ch', { yPercent: -105, stagger: .035, duration: .25, ease: 'power2.in' }, 'b');
+    .to('#process .pw1 .ch', { yPercent: -105, stagger: .035, duration: .25, ease: 'power2.in' }, 'b');
   hide('.steps .s1', 'b'); rip('.scrap.s1', 'b');
-  tl.fromTo('.w2 .rip', { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: .22, ease: 'power3.out' }, 'b+=.4');
+  tl.fromTo('#process .pw2 .rip', { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: .22, ease: 'power3.out' }, 'b+=.4');
   slap('.scrap.s2', 'b+=.28'); show('.steps .s2', 'b+=.32');
-  tl.to('.w2 .rip.top', { yPercent: -10, xPercent: -1.4, rotate: -2.4, duration: .35, ease: 'power2.out' }, 'b+=.5')
-    .to('.w2 .rip.bot', { yPercent: 9, xPercent: 1.6, rotate: 1.8, duration: .35, ease: 'power2.out' }, 'b+=.5')
+  tl.to('#process .pw2 .rip.top', { yPercent: -10, xPercent: -1.4, rotate: -2.4, duration: .35, ease: 'power2.out' }, 'b+=.5')
+    .to('#process .pw2 .rip.bot', { yPercent: 9, xPercent: 1.6, rotate: 1.8, duration: .35, ease: 'power2.out' }, 'b+=.5')
     .to({}, { duration: .3 })
-    .to('.w2 .rip', { autoAlpha: 0, duration: .18 }, 'c');
+    .to('#process .pw2 .rip', { autoAlpha: 0, duration: .18 }, 'c');
   hide('.steps .s2', 'c'); rip('.scrap.s2', 'c');
-  tl.fromTo('.w3 .fi', { '--sx': '-12%' }, { '--sx': '135%', duration: .45, ease: 'power1.inOut' }, 'c+=.2');
+  tl.fromTo('#process .pw3 .fi', { '--sx': '-12%' }, { '--sx': '135%', duration: .45, ease: 'power1.inOut' }, 'c+=.2');
   slap('.scrap.s3', 'c+=.3'); show('.steps .s3', 'c+=.25');
   tl.to({}, { duration: .4 });
 }
