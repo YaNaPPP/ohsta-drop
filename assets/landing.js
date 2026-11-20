@@ -288,8 +288,35 @@ function tearPaths(){
   $('.rip.top').style.clipPath = `polygon(0% -20%,100% -20%,${P(pts)})`;
   $('.rip.bot').style.clipPath = `polygon(${P(pts.slice().reverse())},100% 120%,0% 120%)`;
 }
+// a ripped-paper outline: every edge jitters; the photo sits a little inside so a white paper fringe shows
+function tornPoly(R, inset, amp){
+  const pts = [], edge = (x0, y0, x1, y1, ax, ay) => {
+    for (let t = 0; t < 1; t += .025 + R() * .045){
+      const j = (R() - .5) * 2 + (R() < .12 ? (R() - .5) * 2.4 : 0);
+      pts.push([x0 + (x1 - x0) * t + ax * j * amp, y0 + (y1 - y0) * t + ay * j * amp]);
+    }
+  };
+  const a = inset, b = 100 - inset;
+  edge(a, a, b, a, 0, .8); edge(b, a, b, b, 1, 0); edge(b, b, a, b, 0, .8); edge(a, b, a, a, 1, 0);
+  return `polygon(${pts.map(([x, y]) => `${x.toFixed(2)}% ${y.toFixed(2)}%`).join(',')})`;
+}
+function buildScraps(){
+  $$('.scrap').forEach((sc, i) => {
+    const R = mulberry(50 + i * 7);
+    sc.querySelectorAll('.paper').forEach(p => { p.style.clipPath = tornPoly(mulberry(60 + i), 1.2, 1.1); });
+    sc.querySelectorAll('.paper img').forEach(im => { im.style.clipPath = tornPoly(mulberry(70 + i), 4.2, 1.4); });
+    // where this scrap will tear when it is ripped off the wall
+    const tear = []; let y = -10;
+    while (y < 110){ tear.push([46 + (R() - .5) * 14, y]); y += 3 + R() * 6; }
+    tear.push([50 + (R() - .5) * 10, 112]);
+    const P = a => a.map(([x, yy]) => `${x.toFixed(1)}% ${yy.toFixed(1)}%`).join(',');
+    sc.querySelector('.half.a').style.clipPath = `polygon(-30% -20%,${P(tear)},-30% 120%)`;
+    sc.querySelector('.half.b').style.clipPath = `polygon(130% -20%,${P(tear)},130% 120%)`;
+    sc.style.rotate = ['-3deg', '2.4deg', '-1.6deg'][i];
+  });
+}
 function buildProcess(){
-  tearPaths();
+  tearPaths(); buildScraps();
   gsap.set('.w1 .ch', { yPercent: 105 });
   const step = $('.js-step');
   const tl = gsap.timeline({ scrollTrigger: { trigger: '#process', start: 'top top', end: () => '+=' + innerHeight * (isMob() ? 2.4 : 2.8),
@@ -297,22 +324,28 @@ function buildProcess(){
     onUpdate: s => { step.textContent = s.progress < .37 ? '01' : s.progress < .7 ? '02' : '03'; } } });
   const show = (sel, at) => tl.fromTo(sel, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: .22, ease: 'power2.out' }, at);
   const hide = (sel, at) => tl.to(sel, { autoAlpha: 0, y: -24, duration: .18, ease: 'power2.in' }, at);
-  const oval = (sel, at) => tl.fromTo(sel, { clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(72% at 50% 50%)', duration: .3, ease: 'power2.inOut' }, at);
-  tl.to('.ovring ellipse', { strokeDashoffset: 0, duration: .4, ease: 'power1.inOut' }, 0)
-    .fromTo('.w1 .ch', { yPercent: 105 }, { yPercent: 0, stagger: .05, duration: .3, ease: 'power3.out' }, 0);
-  oval('.oval .o1', 0); show('.steps .s1', .1);
+  // a scrap is slapped onto the wall… and later ripped off it in two pieces
+  const slap = (sel, at) => tl.fromTo(sel, { autoAlpha: 0, scale: 1.18, rotate: 7 }, { autoAlpha: 1, scale: 1, rotate: 0, duration: .2, ease: 'back.out(1.6)' }, at);
+  const rip = (sel, at) => {
+    tl.to(sel + ' .half.a', { xPercent: -5, rotate: -4, duration: .08, ease: 'power1.out' }, at)
+      .to(sel + ' .half.b', { xPercent: 5, rotate: 4, duration: .08, ease: 'power1.out' }, at)
+      .to(sel + ' .half.a', { xPercent: -26, yPercent: 60, rotate: -24, autoAlpha: 0, duration: .26, ease: 'power2.in' }, at + '+=.08')
+      .to(sel + ' .half.b', { xPercent: 30, yPercent: 70, rotate: 28, autoAlpha: 0, duration: .26, ease: 'power2.in' }, at + '+=.08');
+  };
+  tl.fromTo('.w1 .ch', { yPercent: 105 }, { yPercent: 0, stagger: .05, duration: .3, ease: 'power3.out' }, 0);
+  slap('.scrap.s1', 0); show('.steps .s1', .1);
   tl.to({}, { duration: .35 })
     .to('.w1 .ch', { yPercent: -105, stagger: .035, duration: .25, ease: 'power2.in' }, 'b');
-  hide('.steps .s1', 'b');
-  tl.fromTo('.w2 .rip', { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: .22, ease: 'power3.out' }, 'b+=.3');
-  oval('.oval .o2', 'b+=.2'); show('.steps .s2', 'b+=.32');
+  hide('.steps .s1', 'b'); rip('.scrap.s1', 'b');
+  tl.fromTo('.w2 .rip', { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: .22, ease: 'power3.out' }, 'b+=.4');
+  slap('.scrap.s2', 'b+=.28'); show('.steps .s2', 'b+=.32');
   tl.to('.w2 .rip.top', { yPercent: -10, xPercent: -1.4, rotate: -2.4, duration: .35, ease: 'power2.out' }, 'b+=.5')
     .to('.w2 .rip.bot', { yPercent: 9, xPercent: 1.6, rotate: 1.8, duration: .35, ease: 'power2.out' }, 'b+=.5')
     .to({}, { duration: .3 })
     .to('.w2 .rip', { autoAlpha: 0, duration: .18 }, 'c');
-  hide('.steps .s2', 'c');
+  hide('.steps .s2', 'c'); rip('.scrap.s2', 'c');
   tl.fromTo('.w3 .fi', { '--sx': '-12%' }, { '--sx': '135%', duration: .45, ease: 'power1.inOut' }, 'c+=.2');
-  oval('.oval .o3', 'c+=.08'); show('.steps .s3', 'c+=.25');
+  slap('.scrap.s3', 'c+=.3'); show('.steps .s3', 'c+=.25');
   tl.to({}, { duration: .4 });
 }
 
