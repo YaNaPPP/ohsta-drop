@@ -2,7 +2,16 @@
   "cleanUrls": true,
   "headers": [
     {
-      "source": "/(assets/(film|img|hero)|case-study/media)/(.*)",
+      "source": "/assets/:dir(film|img|hero)/:file*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/case-study/media/:file*",
       "headers": [
         {
           "key": "Cache-Control",
