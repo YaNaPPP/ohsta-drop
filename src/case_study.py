@@ -24,7 +24,7 @@ CHAPTERS = [
  ('The system', 'Two typefaces (PP Monument Extended for the shout, PP Neue Montreal for the facts), four colours, five marks from spray paint. One wall, one vocabulary.'),
 ]
 def vid(name, cls=''):
-    return f'<video class="v {cls}" muted loop playsinline preload="none" poster="media/{name}.jpg" data-src="media/{name}.mp4"></video>'
+    return f'<video class="v {cls}" muted loop playsinline preload="none" poster="/case-study/media/{name}.jpg" data-src="/case-study/media/{name}.mp4"></video>'
 
 ideas = '\n'.join(f'''    <article class="idea">
       <div class="itext"><p class="lab"><b>[ {n} ]</b></p><h3 class="disp">{E(t)}</h3><p class="body">{E(b)}</p></div>
@@ -90,7 +90,7 @@ section>.lab{{margin-bottom:calc(50 * var(--u))}}
 }}
 </style>
 <body>
-<header><a class="logo" href="../">OH®</a><span class="lab">OHSTA — Drop 010 · Case study</span><a class="cta" href="../">See it live</a></header>
+<header><a class="logo" href="/">OH®</a><span class="lab">OHSTA — Drop 010 · Case study</span><a class="cta" href="/">See it live</a></header>
 
 <div class="hero">
   <p class="lab"><b>[ Case study ]</b>&nbsp;&nbsp; Landing page · UX/UI · Motion · Build</p>
@@ -120,7 +120,7 @@ section>.lab{{margin-bottom:calc(50 * var(--u))}}
 <div class="end">
   <p class="lab"><b>[ Drop 010 ]</b>&nbsp;&nbsp; Suits, ripped &amp; reworn</p>
   <h2 class="disp" style="margin-top:calc(30 * var(--u))">See it<br>live.</h2>
-  <a class="big" href="../">ohsta-drop.vercel.app</a>
+  <a class="big" href="/">ohsta-drop.vercel.app</a>
   <p class="lab fine">OHSTA is a fictional brand created for this project. Product photos are moodboard references.</p>
 </div>
 <script>
