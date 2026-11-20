@@ -2,7 +2,7 @@
   "cleanUrls": true,
   "headers": [
     {
-      "source": "/assets/(film|img)/(.*)",
+      "source": "/(assets/(film|img|hero)|case-study/media)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

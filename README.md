@@ -13,6 +13,9 @@ Animated hero for the OHSTA.Studio streetwear drop (Fri 23 Oct 2026, 18:00). Des
 6. **04 The drop** — 300 pieces, one Friday, no restock: the mechanics, a live countdown (always the next Friday 18:00 Berlin) and the reserve form (front-end only, nothing is sent).
 7. **Footer** — the wordmark runs.
 
+## Case study
+`/case-study` — the reader layer behind the Dribbble shot: three key decisions and the nine-chapter story (`src/case_study.py` builds it).
+
 ## Structure
 - `index.html` — the built page (hero images and fonts embedded)
 - `assets/landing.css`, `assets/landing.js` — everything below the hero
