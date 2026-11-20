@@ -75,6 +75,53 @@ function wobblyLine(x0, y0, x1, y1, amp, R){
 }
 function primePath(p){ const L = p.getTotalLength(); p.style.strokeDasharray = L; p._L = L; return L; }
 
+/* ---------- where paint can run from: the feet of the letters ----------
+   The text is drawn once on an offscreen canvas in the same font, size and tracking. For every pixel column we
+   find the glyph's lowest point; columns whose bottom sits on the baseline (the feet of H, T, A, the bottom of
+   O and S) are where a drip can hang. Runs start a little inside the letter so the top flare merges into it. */
+function glyphFeet(text, fs0, ls0){
+  const s = Math.max(1, 240 / fs0), fs = fs0 * s, ls = ls0 * s;          // small sizes are measured at a larger scale
+  const c = document.createElement('canvas'), g = c.getContext('2d'), font = `900 ${fs}px "OH Display"`;
+  g.font = font;
+  const m = g.measureText(text), pad = Math.ceil(fs * .1);
+  c.width = Math.ceil(m.width + Math.abs(ls) * text.length + pad * 2); c.height = Math.ceil(fs * 1.5);
+  g.font = font; g.textBaseline = 'alphabetic'; g.fillStyle = '#000';
+  let W;
+  if ('letterSpacing' in g){ g.letterSpacing = ls + 'px'; g.fillText(text, pad, fs); W = g.measureText(text).width; }
+  else { let x = pad; for (const ch of text){ g.fillText(ch, x, fs); x += g.measureText(ch).width + ls; } W = x - pad; }
+  const d = g.getImageData(0, 0, c.width, c.height).data, bottom = new Float32Array(c.width).fill(-1);
+  for (let x = 0; x < c.width; x++) for (let y = c.height - 1; y >= 0; y--) if (d[(y * c.width + x) * 4 + 3] > 140){ bottom[x] = y; break; }
+  return { bottom, pad, base: fs, W, s, asc: m.fontBoundingBoxAscent || fs * .8, desc: m.fontBoundingBoxDescent || fs * .2 };
+}
+// pick n hanging points on the feet, each at least minW wide; returns canvas x and the foot's y (top of the run)
+function pickFeet(f, n, minW, seed){
+  const segs = [], tol = Math.max(2, f.base * .015);
+  minW *= f.s;
+  let s = -1;
+  for (let x = 0; x <= f.bottom.length; x++){
+    const on = x < f.bottom.length && f.bottom[x] >= f.base - tol;
+    if (on && s < 0) s = x;
+    if (!on && s >= 0){ if (x - s >= minW) segs.push([s, x - 1]); s = -1; }
+  }
+  const R = mulberry(seed), cands = [];
+  segs.forEach(([a, b]) => {
+    const w = b - a, k = w > minW * 5 ? 2 : 1;                        // a wide foot can carry two runs
+    for (let i = 0; i < k; i++) cands.push(a + w * (k === 1 ? .3 + R() * .4 : (i ? .68 : .3) + (R() - .5) * .08));
+  });
+  // keep them spread: drop candidates until n remain, removing the one closest to a neighbour
+  while (cands.length > n){
+    let bi = 1, bd = Infinity;
+    for (let i = 1; i < cands.length; i++){ const dd = cands[i] - cands[i - 1]; if (dd < bd){ bd = dd; bi = R() < .5 ? i : i - 1; } }
+    cands.splice(bi, 1);
+  }
+  return cands.map(x => { let top = Infinity; for (let i = Math.round(x - minW / 2); i <= Math.round(x + minW / 2); i++) if (f.bottom[i] >= f.base - tol) top = Math.min(top, f.bottom[i]); return { x, y: top === Infinity ? f.base : top }; });
+}
+// canvas coords → coords inside the inline-block that holds the text (line-height lh, in em)
+function feetToBox(f, pts, fs, lh, boxW){
+  const sx = boxW / f.W, baseInBox = (lh * fs - (f.asc + f.desc) / f.s) / 2 + f.asc / f.s;
+  return pts.map(p => ({ x: (p.x - f.pad) * sx, y: baseInBox + (p.y - f.base) / f.s }));
+}
+
 /* ---------- 01 · the rule: words fill in, FIT IN gets sprayed out, STAND OUT goes over it ---------- */
 const statement = $('.statement'), last = $('.statement .fill.last'), lastFi = last.querySelector('.fi');
 const tag = $('.tagword'), strike = $('.js-strike path');
@@ -85,11 +132,23 @@ function layoutRule(){
   strike.setAttribute('d', wobblyLine(lr.left - sr.left - fs * .06, y + fs * .05, lr.right - sr.left + fs * .05, y - fs * .07, fs * .05, mulberry(5)));
   strike.style.strokeWidth = (fs * .13).toFixed(1);
   primePath(strike);
-  const tfs = fs * (isMob() ? .4 : .34);
+  const tfs = fs * (isMob() ? .3 : .34);
   tag.style.fontSize = tfs.toFixed(1) + 'px';
   const tw = tag.querySelector('.tw').getBoundingClientRect().width;
   tag.style.left = Math.min(lr.right - sr.left - tw * 1.02, lr.left - sr.left + lr.width * .3).toFixed(1) + 'px';
-  tag.style.top = (lr.top - sr.top + lr.height * .5 - tfs * .55).toFixed(1) + 'px';
+  tag.style.top = (y - fs * .07 - tfs * .84).toFixed(1) + 'px';          // sits on top of the sprayed line, not inside it
+  const twEl = tag.querySelector('.tw'), drips = $$('.tagword .drip');
+  const f = glyphFeet(twEl.textContent.toUpperCase(), tfs, -.04 * tfs);
+  const pts = feetToBox(f, pickFeet(f, drips.length, tfs * .16, 8), tfs, .9, twEl.offsetWidth);
+  const h = twEl.offsetHeight, k = Math.tan(-9 * Math.PI / 180);       // .tw is skewX(-9deg) around its centre
+  const lens = [1.1, .6, 1.4, .8, 1.2, .7];
+  drips.forEach((dr, i) => {
+    const p = pts[i]; if (!p){ dr.style.display = 'none'; return; }
+    dr.style.display = '';
+    dr.style.left = (twEl.offsetLeft + p.x + k * (p.y - h / 2) - tfs * .0325).toFixed(1) + 'px';
+    dr.style.top = (twEl.offsetTop + p.y - tfs * .05).toFixed(1) + 'px';
+    dr.style.setProperty('--l', lens[i % lens.length]);
+  });
 }
 function buildRule(){
   const words = $$('.statement .w'), lastW = $$('.statement .fill.last .w');
@@ -321,11 +380,14 @@ function layoutWordmark(){
   // offsets, not client rects: the wordmark may be mid-entrance (translated) when this runs
   const dpr = Math.min(2, devicePixelRatio || 1), wr = { width: w.offsetWidth }, em = parseFloat($('.wordmark').style.fontSize) || 100;
   const fr = { left: fi.offsetLeft, width: fi.offsetWidth, bottom: fi.offsetTop + fi.offsetHeight }, wrTop = 0;
-  const Hc = fr.bottom + em * 1.1;
+  const Hc = fr.bottom + em * .6;
   cv.style.height = Hc + 'px'; cv.width = Math.round(wr.width * dpr); cv.height = Math.round(Hc * dpr);
-  const R = mulberry(3), x0 = fr.left / em, y0 = fr.bottom / em - .075;
-  const spots = [.07, .155, .3, .395, .52, .655, .79, .93];
-  wm = { cv, em: em * dpr, runs: spots.map((s, i) => ({ x: x0 + (fr.width / em) * s + (R() - .5) * .02, y: y0 - (i === 4 ? .02 : 0), L: .25 + R() * .75, w: .028 + R() * .03, wob: R() * 6.28, d: R() * 900 })), t0: wm && wm.t0 };
+  const R = mulberry(3), f = glyphFeet('OHSTA', em, -.05 * em);
+  const pts = feetToBox(f, pickFeet(f, isMob() ? 5 : 7, em * .09, 3), em, .78, fr.width);
+  const maxL = .42;
+  w.style.paddingBottom = (em * (maxL + .08)).toFixed(0) + 'px';
+  wm = { cv, em: em * dpr, runs: pts.map(p => ({ x: (fr.left + p.x) / em, y: (fi.offsetTop + p.y) / em - .045,
+    L: .14 + R() * (maxL - .14), w: .022 + R() * .02, wob: R() * 6.28, d: R() * 900 })), t0: wm && wm.t0 };
   drawWordmark(wm.t0 ? performance.now() - wm.t0 : 0);
 }
 function drawWordmark(t){
@@ -334,7 +396,7 @@ function drawWordmark(t){
   wm.runs.forEach(r => {
     const tt = Math.max(0, t - r.d) / 1000; if (tt <= 0) return;
     const len = r.L * (1 - Math.exp(-tt / (.4 + r.L * .9)));
-    drawRun(ctx, v => v * wm.em, v => v * wm.em, wm.em, r.x, r.y, Math.max(.01, len), r.L, r.w, r.wob, [0, 19, 255], true);
+    drawRun(ctx, v => v * wm.em, v => v * wm.em, wm.em, r.x, r.y, Math.max(.01, len), r.L, r.w, r.wob, [255, 255, 255], false);
   });
 }
 function buildFooter(){
