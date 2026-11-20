@@ -39,7 +39,14 @@ html.lock,html.lock body{overflow:hidden}
 #scene canvas,#scene img{position:absolute;display:block;top:0;height:100%}
 #gl,#paint,#mist{left:0;width:100%}
 #guy{left:49.6354%;width:50.3646%;pointer-events:none}
-#vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;background:#000}
+#vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;background:#000;transform-origin:50% 50%}
+#scan{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s ease-out;display:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 50%,transparent 55%,rgba(0,0,0,.42))}
+.video-mode #scan,.video-mode #snaps{display:block}
+#snaps{position:absolute;inset:0;display:none;transform-origin:50% 50%}
+#snaps img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;visibility:hidden}
+#snaps img.on{visibility:visible}
+#scan.on{opacity:1;transition:none}
 .video-mode #vid{display:block}
 .video-mode #gl,.video-mode #guy{display:none}
 #marks{left:0;width:100%}
@@ -126,8 +133,9 @@ html.lock,html.lock body{overflow:hidden}
 .foot .l2{display:block;margin-top:-.2244em;margin-left:.0556em}
 #fScroll{--x:50;--y:992}
 #ff{--x:357;--y:56;--fs:16;font-family:var(--text);letter-spacing:.12em;opacity:0;transition:opacity .25s}
-#ff.on{opacity:.85;animation:ffb 1s steps(2) infinite}
-@keyframes ffb{50%{opacity:.35}}
+#ff.on{opacity:.9;transition:none}
+#ff b{color:#ff2a2a;font-weight:400;animation:ffb 1s steps(2) infinite}
+@keyframes ffb{50%{opacity:.2}}
 #fDress{--x:357;--y:993}
 #fNo{--x:926;--y:993}
 #fDrop{--x:1704;--y:989;--w:166;width:9.2222em;white-space:normal}
@@ -234,7 +242,7 @@ html.lock,html.lock body{overflow:hidden}
   <div id="sceneBox">
     <div id="stage">
       <div id="scene">
-        <video id="vid" muted playsinline preload="auto" disablepictureinpicture><source src="ohsta-run.webm" type="video/webm"><source src="ohsta-run.mp4" type="video/mp4"></video>
+        <img id="vid" alt="" decoding="async"><div id="snaps"></div><div id="scan"></div>
         <canvas id="gl" width="1920" height="1080"></canvas>
         <canvas id="paint" width="1920" height="1080"></canvas>
         <img id="guy" alt="">
@@ -264,7 +272,7 @@ html.lock,html.lock body{overflow:hidden}
     <p id="date" class="blk aC aM"><span class="mline"><span class="jl sprayed">Dropping Friday / 6 PM,</span></span><span class="mline"><span class="ll sprayed">Shipping Worldwide</span></span></p>
     <p id="day" class="blk aR aT" aria-label="23 October"><span class="mline"><span style="position:relative;left:-.0769em">23 </span></span><span class="mline"><span>  / </span></span><span class="mline"><span>10</span></span></p>
 
-    <p id="ff" class="blk aL aT" aria-hidden="true">FFWD <span>3×</span></p>
+    <p id="ff" class="blk aL aT" aria-hidden="true"><b>●</b> REC · CAM 03 · <span>03:59:59</span></p>
     <p id="fScroll" class="blk foot aL aB fade"><span style="display:block">Scroll</span><span style="display:block">down ↓</span></p>
     <p id="fDress" class="blk foot aC aB fade"><span class="fit" data-em="11.3333">Dress Code Violation Drop</span><span class="l2"><span class="fit" data-em="10">Suits, Ripped &amp; Reworn</span></span></p>
     <p id="fNo" class="blk foot aC aB fade"><span class="fit" data-em="4.6667">No restock</span><span class="l2"><span class="fit" data-em="7">Only one chance</span></span></p>
@@ -577,15 +585,14 @@ const SCENES = {
 SCENES.vid = { ...SCENES.desk, focus: '70% 46%' };
 const MOBILE = matchMedia('(max-aspect-ratio: 4/5)');
 const vid = document.getElementById('vid');
-const VIDEO_START = .2, TAG_DONE = 8.6, ACT2_AT = 5.3;      // seconds in the clip: start just before he bursts in; tag finished; type starts mid-tag
-// CCTV fast-forward: the burst past the lens plays in real time, the walk to the wall and the tag run sped up,
-// the last beat (he steps back from the tag) is real time again. ~10 s of film plays in ~4 s.
-const VIDEO_RATES = [[0, 1], [1.0, 3], [3.3, 2.2], [8.6, 1]];
-const rateAt = t => { let r = 1; for (const [a, v] of VIDEO_RATES) if (t >= a) r = v; return r; };
-const wallTime = (a, b) => VIDEO_RATES.reduce((sum, [t0, r], i) => {
-  const t1 = i + 1 < VIDEO_RATES.length ? VIDEO_RATES[i + 1][0] : 1e9, lo = Math.max(a, t0), hi = Math.min(b, t1);
-  return sum + (hi > lo ? (hi - lo) / r : 0); }, 0);
-let filmRAF = 0;
+/* the film is shown as CCTV captures: 11 hand-picked frames of the clip, each held for a beat with a hard cut.
+   No in-between motion, so nothing can morph or slide; the stutter reads as security footage. */
+const SNAPS = [   // [file, hold ms, seconds the camera clock jumps]
+  ['f01', 380, 0], ['f02', 300, 2], ['f03', 300, 3], ['f04', 340, 2], ['f05', 280, 4], ['f06', 300, 3],
+  ['f07', 300, 5], ['f08', 300, 4], ['f09', 300, 4], ['f10', 340, 6], ['f11', 0, 3]];
+const SNAP_ACT2 = 7;                                          // the type starts on the 'OHSI' capture, while he is still tagging
+const snapAt = i => SNAPS.slice(0, i).reduce((t, x) => t + x[1], 0);
+let filmTimer = 0, filmRunning = false;
 const isVideo = () => SC === SCENES.vid;
 const pickScene = () => MOBILE.matches ? SCENES.mob : SCENES.vid;
 let SC = SCENES.desk, W = 1920, H = 1080, NOZZLE = SC.nozzle;
@@ -1038,6 +1045,7 @@ function resetIntro(){
   document.getAnimations().forEach(a => { if (!a.effect || !a.effect.target || !a.effect.target.closest || !a.effect.target.closest('#pre')) a.cancel(); });
   breath = null;
   fxRAF.forEach(cancelAnimationFrame); fxRAF = []; clearTimeout(act2Timer); act2Started = false;
+  stopFilm();
   document.querySelectorAll('#blob .drop, #blob .mistdot, .haze, .mistb').forEach(d => d.remove());
   head.querySelectorAll(':scope > .mistdot').forEach(d => d.remove());
   ['#splotch', '#logoSpray'].forEach(q => $(q).style.filter = '');
@@ -1047,7 +1055,7 @@ function resetIntro(){
 function finalState(){
   introDone = true; stencil.classList.add('done'); $('#ring').style.setProperty('--ra', '400deg'); dripLive = false; paintSplotches();
   brushFill(); drawMarks(1); drawTypeDrips(Infinity); document.querySelectorAll('#tags .tag').forEach(t => t.style.opacity = 1);
-  if (isVideo()){ const go = () => { vid.pause(); vid.currentTime = vid.duration - .05; }; vid.readyState >= 1 ? go() : vid.addEventListener('loadedmetadata', go, { once: true }); }
+  if (isVideo()) lastSnap();
 }
 function playIntro(){
   resetIntro();
@@ -1058,8 +1066,6 @@ function playIntro(){
   if (isVideo()){
     // ACT 1 (desktop) — the filmed run-in: he bursts past the lens and writes the tag; only the frame of the page is on screen
     brush.on = false; brushFill(); drawMarks();
-    vid.pause(); vid.playbackRate = rateAt(VIDEO_START); vid.currentTime = VIDEO_START;
-    const p = vid.play(); if (p && p.catch) p.catch(() => {});
     // the frame of the page (logo, date, the drop facts) is readable while he is still running in
     ['#logo', '#tagline', '#day', ...document.querySelectorAll('.foot')].forEach((q, i) => {
       const el = typeof q === 'string' ? $(q) : q;
@@ -1067,17 +1073,8 @@ function playIntro(){
     });
     stencil.classList.remove('done');
     stencil.animate([{ opacity: 0, letterSpacing: '-.02em' }, { opacity: 1, letterSpacing: '-.05em' }], { duration: 1000, delay: 500, easing: EASE, ...o });
-    // follow the clip: switch speeds at the cuts, start the type while he is still tagging
-    act2Timer = setTimeout(() => act2(performance.now() - t0), wallTime(VIDEO_START, ACT2_AT) * 1000 + 800);
-    const ff = $('#ff'), ffN = ff.querySelector('span');
-    cancelAnimationFrame(filmRAF);
-    (function watch(){
-      const t = vid.currentTime, r = rateAt(t);
-      if (Math.abs(vid.playbackRate - r) > .01) vid.playbackRate = r;
-      ff.classList.toggle('on', r > 1.05 && !act2Started); if (r > 1.05) ffN.textContent = (r % 1 ? r.toFixed(1) : r) + '×';
-      if (t >= ACT2_AT && !act2Started){ clearTimeout(act2Timer); act2(performance.now() - t0); }
-      if (!vid.ended && t < vid.duration - .1) filmRAF = requestAnimationFrame(watch); else ff.classList.remove('on');
-    })();
+    act2Timer = setTimeout(() => act2(performance.now() - t0), snapAt(SNAP_ACT2) + 800);
+    playFilm(() => { clearTimeout(act2Timer); act2(performance.now() - t0); });
   } else {
     stencil.classList.remove('done');
     stencil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: 200, easing: 'ease-out', ...o });
@@ -1137,9 +1134,41 @@ function act2(at){
 // a click during the film skips to the finished tag
 function skipFilm(){
   if (!isVideo() || act2Started || REDUCED) return;
-  cancelAnimationFrame(filmRAF); $('#ff').classList.remove('on');
-  vid.pause(); if (vid.duration) vid.currentTime = vid.duration - .05;
+  lastSnap();
   clearTimeout(act2Timer); act2(performance.now() - t0);
+}
+let snapEls = [];
+const im11 = () => `assets/film/${SNAPS[SNAPS.length - 1][0]}.webp`;
+function showSnap(i){ snapEls.forEach((im, k) => im.classList.toggle('on', k === i)); }
+function stopFilm(){ clearTimeout(filmTimer); filmRunning = false; }
+// the last capture is the wall the page lives on: no jitter, scanlines gone, clock hidden
+function lastSnap(){
+  stopFilm(); vid.src = `assets/film/${SNAPS[SNAPS.length - 1][0]}.webp`; showSnap(-1);
+  const box = $('#snaps'); box.style.transition = 'transform .45s cubic-bezier(.2,.8,.2,1)'; box.style.transform = 'none';
+  $('#scan').classList.remove('on'); $('#ff').classList.remove('on');
+}
+function playFilm(onAct2){
+  stopFilm(); filmRunning = true; vid.src = im11();
+  const ff = $('#ff'), clock = ff.querySelector('span'), scan = $('#scan'), R = mulberry(23);
+  const base = new Date(); base.setHours(3, 59, 59, 0); let sec = 0;
+  scan.classList.add('on'); ff.classList.add('on');
+  let i = 0;
+  (function step(){
+    if (!filmRunning) return;
+    showSnap(i);
+    sec += SNAPS[i][2];
+    const t = new Date(base.getTime() + sec * 1000);
+    clock.textContent = [t.getHours(), t.getMinutes(), t.getSeconds()].map(v => String(v).padStart(2, '0')).join(':');
+    if (i < SNAPS.length - 1){
+      // each capture sits a hair off: the camera never frames twice the same
+      const box = $('#snaps'); box.style.transition = 'none';
+      box.style.transform = `translate(${((R() - .5) * 10).toFixed(1)}px,${((R() - .5) * 6).toFixed(1)}px) scale(${(1.012 + R() * .012).toFixed(3)})`;
+      $('#flash').animate([{ opacity: .14 }, { opacity: 0 }], { duration: 110, easing: 'ease-out' });
+    }
+    if (i === SNAP_ACT2) onAct2();
+    if (i < SNAPS.length - 1){ filmTimer = setTimeout(step, SNAPS[i][1]); i++; }
+    else { filmRunning = false; vid.src = im11(); setTimeout(lastSnap, 60); }
+  })();
 }
 function idle(){
   if (REDUCED) return;
@@ -1526,17 +1555,14 @@ function lids(sy, dur){ document.querySelectorAll('#eyes .lid').forEach(l => l.a
 let filmLoad = 0, filmReady = null;
 function loadFilm(){
   if (filmReady) return filmReady;
-  const webm = vid.canPlayType('video/webm; codecs="vp9"'), src = webm ? 'ohsta-run.webm' : 'ohsta-run.mp4';
-  filmReady = (async () => {
-    try {
-      const r = await fetch(src); if (!r.ok) throw 0;
-      const total = +r.headers.get('content-length') || 0, rd = r.body.getReader(), chunks = []; let got = 0;
-      for (;;){ const { done, value } = await rd.read(); if (done) break; chunks.push(value); got += value.length; if (total) filmLoad = got / total; }
-      vid.src = URL.createObjectURL(new Blob(chunks, { type: webm ? 'video/webm' : 'video/mp4' }));
-    } catch (e) { /* fall back to the <source> elements */ }
-    filmLoad = 1;
-    await new Promise(res => { if (vid.readyState >= 3) return res(); vid.addEventListener('canplaythrough', res, { once: true }); vid.load(); setTimeout(res, 4000); });
-  })();
+  let n = 0;
+  const box = $('#snaps');
+  filmReady = Promise.all(SNAPS.map(([f], i) => new Promise(res => {
+    const im = new Image(); im.decoding = 'async'; im.alt = ''; snapEls[i] = im; box.appendChild(im);
+    im.onload = () => { (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => { filmLoad = ++n / SNAPS.length; res(); }); };
+    im.onerror = () => { filmLoad = ++n / SNAPS.length; res(); };
+    im.src = `assets/film/${f}.webp`;
+  })));
   return filmReady;
 }
 function playPre(){
@@ -1655,13 +1681,10 @@ function breathe(){
 let sceneReadyRes, sceneReadyDone = false; const sceneReadyP = new Promise(r => sceneReadyRes = r);
 const seenRecently = (() => { if (/[?&]intro\b/.test(location.search)) return false; try { return Date.now() - (+localStorage.getItem('ohsta-intro-seen') || 0) < 7 * 864e5; } catch (e) { return false; } })();
 function quickWall(){
-  // the film's last frame is the wall: wait until it can be shown (the CCTV screen covers the wait)
-  const meta = () => new Promise(res => { if (vid.readyState >= 1 && vid.duration) return res(); vid.addEventListener('loadedmetadata', res, { once: true }); setTimeout(res, 3000); });
-  const ready = Promise.race([sceneReadyP.then(() => isVideo() ? loadFilm().then(meta) : null), new Promise(r => setTimeout(r, 6000))]);   // the scene decides film or photo
-  ready.then(() => new Promise(res => {
-    if (!isVideo() || !vid.duration) return res();
-    vid.pause(); vid.addEventListener('seeked', res, { once: true }); vid.currentTime = vid.duration - .05; setTimeout(res, 1200);
-  })).then(() => {
+  // the last capture is the wall: wait until it is decoded (the CCTV screen covers the wait)
+  const ready = Promise.race([sceneReadyP.then(() => isVideo() ? loadFilm() : null), new Promise(r => setTimeout(r, 6000))]);
+  ready.then(() => {
+    if (isVideo()) lastSnap();
     resetIntro(); hideAct2(); t0 = performance.now();
     brush.on = false; brushFill(); drawMarks();
     [$('#logo'), $('#tagline'), $('#day'), ...document.querySelectorAll('.foot')].forEach(el => el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 450, easing: 'ease-out', fill: 'both' }));
@@ -1677,7 +1700,7 @@ if (REDUCED) pre.classList.add('gone'); else if (seenRecently) quickWall(); else
   try { initGL(); await loadScene(pickScene()); } catch (e) { console.warn(e); }
   MOBILE.addEventListener('change', async () => {
     await loadScene(pickScene());
-    if (isVideo()){ vid.pause(); if (vid.duration) vid.currentTime = vid.duration - .05; } else { vid.pause(); }
+    if (isVideo()) lastSnap(); else stopFilm();
   });
   sceneReadyRes(); sceneReadyDone = true;
   if (REDUCED) playIntro();

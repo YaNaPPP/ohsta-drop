@@ -5,7 +5,7 @@ Animated hero for the OHSTA.Studio streetwear drop (Fri 23 Oct 2026, 18:00). Des
 **What happens:** CCTV preloader → the guy runs in from behind the camera and tags OHSTA (desktop film) / the tag is sprayed along its strokes (mobile) → INCOMING is stencil-sprayed, the O lands as a blue "pshh" stain that becomes the Reserve button with a live countdown → the camera leans in and a white spray line traces the jacket and the ripped trousers. After the intro, hold the mouse (or finger) to spray in brand blue: slow = wet and wide, fast = thin, hold still = it pools and drips.
 
 ## The page
-1. **Hero** — CCTV preloader → the run-in film → INCOMING sprayed, the O lands as the Reserve button, suit outlines + tags. Hold to spray.
+1. **Hero** — CCTV preloader → the run-in as 11 CCTV captures (hard cuts, camera clock) → INCOMING sprayed, the O lands as the Reserve button, suit outlines + tags. Hold to spray.
 2. **01 The rule** — "Suits were made to make you fit in." fills in on scroll; FIT IN is sprayed out, STAND OUT goes over it.
 3. **Caution tapes** — speed follows the scroll.
 4. **02 The pieces** — horizontal scroll through the 10 designs of Drop 010; each card sprays out the dress-code rule it breaks.
@@ -17,7 +17,7 @@ Animated hero for the OHSTA.Studio streetwear drop (Fri 23 Oct 2026, 18:00). Des
 - `index.html` — the built page (hero images and fonts embedded)
 - `assets/landing.css`, `assets/landing.js` — everything below the hero
 - `assets/img/` — piece photos and detail crops · `assets/vendor/` — GSAP, ScrollTrigger, Lenis
-- `ohsta-run.webm` / `ohsta-run.mp4` — the desktop film
+- `assets/film/` — the 11 CCTV captures (frames of the film; `src/film/ohsta-run.mp4` is the source clip)
 - `src/` — `template.html` (hero), `landing.html` (page markup), `build.py` (assembles `index.html`, piece data lives here), `pieces.py` (photo crops), asset pipelines
 
 ## Rebuild
